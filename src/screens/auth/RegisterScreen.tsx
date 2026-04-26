@@ -80,7 +80,8 @@ export default function RegisterScreen() {
 								{ color: themeColors.secondary },
 							]}
 						>
-							Crie uma conta e peça uma corrida ou mande uma encomenda
+							Crie uma conta e peça uma corrida ou mande uma
+							encomenda
 						</Text>
 					</Animated.View>
 
@@ -156,7 +157,7 @@ export default function RegisterScreen() {
 							/>
 						</View>
 
-						<GoogleButton onPress={() => { }} />
+						<GoogleButton onPress={() => {}} />
 
 						<View className="flex-row items-center justify-center mt-12 mb-6">
 							<Text
