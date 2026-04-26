@@ -2,13 +2,19 @@ import React, { useEffect, useMemo } from 'react';
 import { View, Image, Animated } from 'react-native';
 import { useThemeColors } from '../hooks/useThemeColors';
 
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../types/navigation';
+
 export default function SplashScreen({
 	duration = 2500,
-	onFinish,
 }: {
 	duration?: number;
-	onFinish?: () => void;
 }) {
+	const navigation =
+		useNavigation<
+			NativeStackNavigationProp<RootStackParamList, 'Splash'>
+		>();
 	const fadeAnim = useMemo(() => new Animated.Value(0), []);
 	const scaleAnim = useMemo(() => new Animated.Value(0.8), []);
 
@@ -36,11 +42,11 @@ export default function SplashScreen({
 				toValue: 0,
 				duration: 1500,
 				useNativeDriver: true,
-			}).start(() => onFinish && onFinish());
+			}).start(() => navigation.replace('Onboarding'));
 		}, duration - 400);
 
 		return () => clearTimeout(timer);
-	}, [duration, onFinish, fadeAnim, scaleAnim]);
+	}, [duration, navigation, fadeAnim, scaleAnim]);
 
 	return (
 		<View

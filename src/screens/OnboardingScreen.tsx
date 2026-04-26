@@ -84,11 +84,15 @@ const Dot = ({
 	return <Animated.View style={[animatedDotStyle, styles.dot]} />;
 };
 
-export default function OnboardingScreen({
-	onFinish,
-}: {
-	onFinish: () => void;
-}) {
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../types/navigation';
+
+export default function OnboardingScreen() {
+	const navigation =
+		useNavigation<
+			NativeStackNavigationProp<RootStackParamList, 'Onboarding'>
+		>();
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const flatListRef = useRef<Animated.FlatList<any>>(null);
 	const scrollX = useSharedValue(0);
@@ -118,7 +122,7 @@ export default function OnboardingScreen({
 			{/* Botão Pular */}
 			<TouchableOpacity
 				className="absolute top-12 right-6 z-10 px-4 py-2"
-				onPress={() => onFinish()}
+				onPress={() => navigation.replace('Auth', { screen: 'Login' })}
 			>
 				<Text
 					className="text-base font-bold"
@@ -181,7 +185,11 @@ export default function OnboardingScreen({
 									style={{
 										backgroundColor: themeColors.primary,
 									}}
-									onPress={() => onFinish()}
+									onPress={() =>
+										navigation.replace('Auth', {
+											screen: 'Login',
+										})
+									}
 								>
 									<Text
 										className="text-lg font-bold"
