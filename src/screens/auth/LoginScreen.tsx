@@ -30,6 +30,8 @@ export default function LoginScreen() {
 
 	const handleLogin = () => {
 		// handle auth logic soon
+		// @ts-ignore - Main is in RootStackParamList
+		navigation.replace('Main');
 	};
 
 	return (

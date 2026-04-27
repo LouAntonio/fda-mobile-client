@@ -8,9 +8,13 @@ export type AuthStackParamList = {
 	ResetPassword: { phone: string; otp: string };
 };
 
+export type MainStackParamList = {
+	Home: undefined;
+};
+
 export type RootStackParamList = {
 	Splash: undefined;
 	Onboarding: undefined;
 	Auth: NavigatorScreenParams<AuthStackParamList>;
-	Main: undefined;
+	Main: NavigatorScreenParams<MainStackParamList>;
 };

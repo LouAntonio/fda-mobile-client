@@ -1,6 +1,6 @@
 export const colors = {
 	light: {
-		background: '#FFFFFF',
+		background: '#F9F9FB', // Off-white para realçar cards brancos
 		text: '#000000', // Preto puro do logo
 		primary: '#FFD700', // Amarelo vibrante (Principal da marca)
 		secondary: '#231F20', // Cinzento escuro (Fato/Mota)
