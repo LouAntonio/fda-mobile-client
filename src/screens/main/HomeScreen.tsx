@@ -75,9 +75,9 @@ export default function HomeScreen() {
 			<View
 				style={[
 					styles.header,
-					{ 
+					{
 						borderBottomColor: themeColors.border,
-						backgroundColor: themeColors.background 
+						backgroundColor: themeColors.background,
 					},
 				]}
 			>

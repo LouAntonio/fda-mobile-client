@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-	Text,
-	Alert,
-	Image,
-	ScrollView,
-	StyleSheet,
-} from 'react-native';
+import { Text, Alert, Image, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
