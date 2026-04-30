@@ -6,6 +6,7 @@ import {
 	TouchableOpacity,
 	StyleSheet,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -115,7 +116,7 @@ export default function OnboardingScreen() {
 	};
 
 	return (
-		<View
+		<SafeAreaView
 			className="flex-1"
 			style={{ backgroundColor: themeColors.background }}
 		>
@@ -236,7 +237,7 @@ export default function OnboardingScreen() {
 					</View>
 				)}
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 }
 

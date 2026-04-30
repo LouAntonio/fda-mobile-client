@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { View, Image, Animated } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeColors } from '../hooks/useThemeColors';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -49,7 +50,7 @@ export default function SplashScreen({
 	}, [duration, navigation, fadeAnim, scaleAnim]);
 
 	return (
-		<View
+		<SafeAreaView
 			className="flex-1 justify-center items-center"
 			style={{ backgroundColor: themeColors.background }}
 		>
@@ -97,6 +98,6 @@ export default function SplashScreen({
 					</View>
 				</Animated.View>
 			</Animated.View>
-		</View>
+		</SafeAreaView>
 	);
 }

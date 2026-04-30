@@ -29,7 +29,7 @@ export default function App() {
 				<StatusBar
 					style={isDark ? 'light' : 'dark'}
 					backgroundColor={
-						Platform.OS === 'android' ? '#8F7657' : undefined
+						Platform.OS === 'android' ? 'transparent' : undefined
 					}
 				/>
 				<NavigationContainer>

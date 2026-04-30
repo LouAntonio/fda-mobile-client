@@ -3,12 +3,12 @@ import {
 	View,
 	Text,
 	TouchableOpacity,
-	SafeAreaView,
 	Image,
 	StyleSheet,
 	ScrollView,
 	TextInput,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { useThemeColors } from '../../hooks/useThemeColors';
@@ -75,7 +75,10 @@ export default function HomeScreen() {
 			<View
 				style={[
 					styles.header,
-					{ borderBottomColor: themeColors.border },
+					{ 
+						borderBottomColor: themeColors.border,
+						backgroundColor: themeColors.background 
+					},
 				]}
 			>
 				<Image
@@ -345,12 +348,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		paddingHorizontal: 20,
 		paddingVertical: 12,
-		borderBottomWidth: 1,
-		elevation: 4,
+		borderBottomWidth: 0.5,
+		elevation: 2,
 		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
+		shadowOpacity: 0.05,
+		shadowRadius: 3,
 		zIndex: 10,
 	},
 	logo: {
@@ -379,7 +382,7 @@ const styles = StyleSheet.create({
 		marginBottom: 4,
 	},
 	mainTitle: {
-		fontSize: 32,
+		fontSize: 22,
 		fontWeight: '900',
 		letterSpacing: -1,
 		marginBottom: 20,
