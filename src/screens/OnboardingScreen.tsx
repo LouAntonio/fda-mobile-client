@@ -5,6 +5,7 @@ import {
 	Dimensions,
 	TouchableOpacity,
 	StyleSheet,
+	Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
@@ -14,33 +15,38 @@ import Animated, {
 	interpolate,
 	Extrapolation,
 	SharedValue,
+	FadeInDown,
+	FadeInUp,
 } from 'react-native-reanimated';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { colors } from '../store/colors';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../types/navigation';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const SLIDES = [
 	{
 		id: '1',
-		title: 'Moto táxi rápido',
+		title: 'Moto Táxi Rápido',
 		description:
-			'Chegue ao seu destino de forma rápida e segura com os nossos motoristas parceiros.',
-		icon: '🛵',
+			'Chegue ao seu destino de forma rápida e segura com os nossos motoristas parceiros em Angola.',
+		image: require('../../assets/images/onboarding_1.png'),
 	},
 	{
 		id: '2',
-		title: 'Pedidos simples',
+		title: 'Pedidos Simples',
 		description:
 			'Faça encomendas ou peça para buscar produtos com apenas alguns cliques no app.',
-		icon: '📦',
+		image: require('../../assets/images/onboarding_2.png'),
 	},
 	{
 		id: '3',
-		title: 'Segurança em 1º lugar',
+		title: 'Segurança em 1º Lugar',
 		description:
 			'Motoristas verificados e acompanhamento da viagem em tempo real para sua proteção.',
-		icon: '🛡️',
+		image: require('../../assets/images/onboarding_3.png'),
 	},
 ];
 
@@ -63,14 +69,14 @@ const Dot = ({
 		const dotWidth = interpolate(
 			scrollX.value,
 			inputRange,
-			[10, 24, 10],
+			[8, 22, 8],
 			Extrapolation.CLAMP,
 		);
 
 		const opacity = interpolate(
 			scrollX.value,
 			inputRange,
-			[0.4, 1, 0.4],
+			[0.3, 1, 0.3],
 			Extrapolation.CLAMP,
 		);
 
@@ -85,10 +91,6 @@ const Dot = ({
 	return <Animated.View style={[animatedDotStyle, styles.dot]} />;
 };
 
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigation';
-
 export default function OnboardingScreen() {
 	const navigation =
 		useNavigation<
@@ -98,7 +100,7 @@ export default function OnboardingScreen() {
 	const flatListRef = useRef<Animated.FlatList<any>>(null);
 	const scrollX = useSharedValue(0);
 
-	const { themeColors } = useThemeColors();
+	const { themeColors, isDark } = useThemeColors();
 
 	const scrollHandler = useAnimatedScrollHandler({
 		onScroll: (event) => {
@@ -112,6 +114,8 @@ export default function OnboardingScreen() {
 				index: currentIndex + 1,
 				animated: true,
 			});
+		} else {
+			navigation.replace('Auth', { screen: 'Login' });
 		}
 	};
 
@@ -120,13 +124,14 @@ export default function OnboardingScreen() {
 			className="flex-1"
 			style={{ backgroundColor: themeColors.background }}
 		>
-			{/* Botão Pular */}
+			{/* Skip Button */}
 			<TouchableOpacity
-				className="absolute top-12 right-6 z-10 px-4 py-2"
+				className="absolute top-14 right-6 z-10 px-4 py-2"
 				onPress={() => navigation.replace('Auth', { screen: 'Login' })}
+				activeOpacity={0.7}
 			>
 				<Text
-					className="text-base font-bold"
+					className="text-sm font-black uppercase tracking-widest"
 					style={{ color: themeColors.primary }}
 				>
 					Pular
@@ -149,93 +154,97 @@ export default function OnboardingScreen() {
 					setCurrentIndex(index);
 				}}
 				keyExtractor={(item) => item.id}
-				renderItem={({ item, index }) => (
-					<View
-						style={{ width }}
-						className="flex-1 items-center justify-center px-8"
-					>
-						<View
-							className="w-40 h-40 rounded-full items-center justify-center mb-10"
-							style={{
-								backgroundColor: themeColors.card,
-								borderColor: themeColors.border,
-								...styles.iconCircle,
-							}}
+				renderItem={({ item, index: _index }) => (
+					<View style={{ width }} className="flex-1 px-10 pt-16">
+						<Animated.View
+							entering={FadeInUp.duration(800).delay(200)}
+							className="items-center justify-center mb-12"
+							style={{ height: height * 0.4 }}
 						>
-							<Text className="text-6xl">{item.icon}</Text>
-						</View>
+							<Image
+								source={item.image}
+								style={styles.illustration}
+								resizeMode="contain"
+							/>
+						</Animated.View>
 
-						<Text
-							className="text-[28px] font-bold text-center mb-4"
-							style={{ color: themeColors.text }}
-						>
-							{item.title}
-						</Text>
-						<Text
-							className="text-base text-center leading-6"
-							style={{ color: themeColors.secondary }}
-						>
-							{item.description}
-						</Text>
-
-						{/* Botões apenas no último slide */}
-						{index === SLIDES.length - 1 && (
-							<View className="w-full mt-10">
-								<TouchableOpacity
-									className="w-full py-4 rounded-xl items-center"
+						<View className="items-center">
+							<View className="items-center mb-6">
+								<Animated.Text
+									entering={FadeInDown.duration(600).delay(
+										400,
+									)}
+									className="text-[25px] font-black tracking-tighter text-center"
+									// eslint-disable-next-line react-native/no-inline-styles
+									style={{
+										color: themeColors.text,
+										lineHeight: 42,
+									}}
+								>
+									{item.title}
+								</Animated.Text>
+								<Animated.View
+									entering={FadeInDown.duration(600).delay(
+										500,
+									)}
+									className="h-1.5 w-14 rounded-full mt-2"
 									style={{
 										backgroundColor: themeColors.primary,
 									}}
-									onPress={() =>
-										navigation.replace('Auth', {
-											screen: 'Login',
-										})
-									}
-								>
-									<Text
-										className="text-lg font-bold"
-										style={{ color: colors.light.text }}
-									>
-										Começar
-									</Text>
-								</TouchableOpacity>
+								/>
 							</View>
-						)}
+							<Animated.Text
+								entering={FadeInDown.duration(600).delay(700)}
+								className="text-[15px] font-medium text-center leading-relaxed"
+								// eslint-disable-next-line react-native/no-inline-styles
+								style={{
+									color: isDark ? '#A1A1AA' : '#64748B',
+									paddingHorizontal: 20,
+									letterSpacing: 0.2,
+								}}
+							>
+								{item.description}
+							</Animated.Text>
+						</View>
 					</View>
 				)}
 			/>
 
-			{/* Indicadores de Progresso (Dots) e Botão Próximo */}
-			<View className="flex-row justify-between items-center px-8 pb-12 pt-4">
-				<View className="flex-row items-center">
-					{SLIDES.map((_, i) => (
-						<Dot
-							key={i}
-							index={i}
-							scrollX={scrollX}
-							themeColors={themeColors}
-						/>
-					))}
-				</View>
+			{/* Footer */}
+			<View className="px-8 pb-12 pt-4">
+				<View className="flex-row justify-between items-center">
+					<View className="flex-row items-center">
+						{SLIDES.map((_, i) => (
+							<Dot
+								key={i}
+								index={i}
+								scrollX={scrollX}
+								themeColors={themeColors}
+							/>
+						))}
+					</View>
 
-				{currentIndex < SLIDES.length - 1 ? (
 					<TouchableOpacity
-						className="px-6 py-3 rounded-full"
-						style={{ backgroundColor: themeColors.primary }}
+						className="w-16 h-16 rounded-full items-center justify-center elevation-5 shadow-lg"
+						// eslint-disable-next-line react-native/no-inline-styles
+						style={{
+							backgroundColor: themeColors.primary,
+							shadowColor: themeColors.primary,
+							shadowOffset: { width: 0, height: 4 },
+							shadowOpacity: 0.3,
+							shadowRadius: 8,
+						}}
 						onPress={handleNext}
+						activeOpacity={0.8}
 					>
 						<Text
-							className="font-bold"
+							className="text-2xl font-black"
 							style={{ color: colors.light.text }}
 						>
-							Próximo
+							{currentIndex === SLIDES.length - 1 ? '✓' : '→'}
 						</Text>
 					</TouchableOpacity>
-				) : (
-					<View className="px-6 py-3 opacity-0">
-						<Text>X</Text>
-					</View>
-				)}
+				</View>
 			</View>
 		</SafeAreaView>
 	);
@@ -243,11 +252,12 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
 	dot: {
-		height: 10,
-		borderRadius: 5,
+		height: 8,
+		borderRadius: 4,
 		marginHorizontal: 4,
 	},
-	iconCircle: {
-		borderWidth: 1,
+	illustration: {
+		width: width * 0.8,
+		height: width * 0.8,
 	},
 });

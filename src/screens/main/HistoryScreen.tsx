@@ -12,7 +12,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+	DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
 
@@ -595,9 +597,9 @@ export default function HistoryScreen() {
 													value={initialStartDate}
 													mode="date"
 													display="default"
-													onValueChange={(
-														event,
-														selectedDate,
+													onChange={(
+														event: DateTimePickerEvent,
+														selectedDate?: Date,
 													) => {
 														setShowStartPicker(
 															Platform.OS ===
@@ -610,11 +612,6 @@ export default function HistoryScreen() {
 																),
 															);
 													}}
-													onDismiss={() =>
-														setShowStartPicker(
-															false,
-														)
-													}
 												/>
 											)}
 										</View>
@@ -660,9 +657,9 @@ export default function HistoryScreen() {
 													value={initialEndDate}
 													mode="date"
 													display="default"
-													onValueChange={(
-														event,
-														selectedDate,
+													onChange={(
+														event: DateTimePickerEvent,
+														selectedDate?: Date,
 													) => {
 														setShowEndPicker(
 															Platform.OS ===
@@ -675,9 +672,6 @@ export default function HistoryScreen() {
 																),
 															);
 													}}
-													onDismiss={() =>
-														setShowEndPicker(false)
-													}
 												/>
 											)}
 										</View>
