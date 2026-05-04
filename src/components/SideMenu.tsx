@@ -7,6 +7,7 @@ import {
 	Dimensions,
 	ScrollView,
 	Pressable,
+	Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
@@ -73,6 +74,25 @@ export default function SideMenu({
 		}),
 		[themeColors.border],
 	);
+
+	const handleLogout = () => {
+		Alert.alert('Sair da Conta', 'Tem certeza que deseja sair?', [
+			{
+				text: 'Cancelar',
+				style: 'cancel',
+			},
+			{
+				text: 'Sair',
+				style: 'destructive',
+				onPress: () => {
+					(navigation as any).reset({
+						index: 0,
+						routes: [{ name: 'Auth' }],
+					});
+				},
+			},
+		]);
+	};
 
 	return (
 		<>
@@ -245,6 +265,7 @@ export default function SideMenu({
 					/>
 					<TouchableOpacity
 						style={styles.logoutButton}
+						onPress={handleLogout}
 						activeOpacity={0.7}
 					>
 						<View
