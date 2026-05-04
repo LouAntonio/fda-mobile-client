@@ -15,6 +15,7 @@ interface InputProps extends TextInputProps {
 	error?: string;
 	isPassword?: boolean;
 	leftIcon?: keyof typeof Ionicons.glyphMap;
+	containerStyle?: any;
 }
 
 export default function Input({
@@ -22,6 +23,7 @@ export default function Input({
 	error,
 	isPassword,
 	leftIcon,
+	containerStyle,
 	...props
 }: InputProps) {
 	const { themeColors, isDark } = useThemeColors();
@@ -81,7 +83,18 @@ export default function Input({
 			)}
 			<View
 				className="flex-row items-center border-2 rounded-2xl overflow-hidden px-4"
-				style={[styles.inputContainer, containerDynamicStyle]}
+				style={[
+					styles.inputContainer,
+					containerDynamicStyle,
+					// eslint-disable-next-line react-native/no-inline-styles
+					props.multiline && {
+						height: undefined,
+						minHeight: 120,
+						alignItems: 'flex-start',
+						paddingTop: 12,
+					},
+					containerStyle,
+				]}
 			>
 				{leftIcon && (
 					<Ionicons
@@ -94,16 +107,25 @@ export default function Input({
 									? '#888'
 									: '#666'
 						}
-						style={styles.leftIcon}
+						style={[
+							styles.leftIcon,
+							// eslint-disable-next-line react-native/no-inline-styles
+							props.multiline && { marginTop: 4 },
+						]}
 					/>
 				)}
 				<TextInput
-					className="flex-1 text-base h-full"
-					style={textInputStyle}
+					className="flex-1 text-base"
+					style={[
+						textInputStyle,
+						// eslint-disable-next-line react-native/no-inline-styles
+						{ height: props.multiline ? 'auto' : 58 },
+					]}
 					placeholderTextColor={isDark ? '#666' : '#999'}
 					secureTextEntry={hidden}
 					onFocus={() => setIsFocused(true)}
 					onBlur={() => setIsFocused(false)}
+					textAlignVertical={props.multiline ? 'top' : 'center'}
 					{...props}
 				/>
 				{isPassword && (

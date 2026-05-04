@@ -18,6 +18,7 @@ import Animated, {
 	FadeInLeft,
 } from 'react-native-reanimated';
 import { useThemeColors } from '../hooks/useThemeColors';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 const DRAWER_WIDTH = width * 0.8;
@@ -34,6 +35,7 @@ export default function SideMenu({
 	userName = 'Usuário',
 }: SideMenuProps) {
 	const { themeColors, isDark } = useThemeColors();
+	const navigation = useNavigation();
 	const drawerPos = useSharedValue(-DRAWER_WIDTH);
 
 	useEffect(() => {
@@ -109,7 +111,13 @@ export default function SideMenu({
 								>
 									{userName}
 								</Text>
-								<TouchableOpacity activeOpacity={0.7}>
+								<TouchableOpacity
+									activeOpacity={0.7}
+									onPress={() => {
+										navigation.navigate('Profile' as never);
+										onClose();
+									}}
+								>
 									<Text
 										style={[
 											styles.viewProfileText,
@@ -144,12 +152,20 @@ export default function SideMenu({
 							label="Histórico"
 							color={themeColors.text}
 							delay={100}
+							onPress={() => {
+								navigation.navigate('History' as never);
+								onClose();
+							}}
 						/>
 						<DrawerItem
 							icon="location-outline"
 							label="Endereços"
 							color={themeColors.text}
 							delay={200}
+							onPress={() => {
+								navigation.navigate('Addresses' as never);
+								onClose();
+							}}
 						/>
 
 						<View style={[styles.drawerDivider, dividerStyle]} />
@@ -162,12 +178,20 @@ export default function SideMenu({
 							label="Métodos de Pagamento"
 							color={themeColors.text}
 							delay={300}
+							onPress={() => {
+								navigation.navigate('PaymentMethods' as never);
+								onClose();
+							}}
 						/>
 						<DrawerItem
 							icon="pricetag-outline"
 							label="Promoções"
 							color={themeColors.text}
 							delay={400}
+							onPress={() => {
+								navigation.navigate('Promotions' as never);
+								onClose();
+							}}
 						/>
 
 						<View style={[styles.drawerDivider, dividerStyle]} />
@@ -180,12 +204,20 @@ export default function SideMenu({
 							label="Informações"
 							color={themeColors.text}
 							delay={500}
+							onPress={() => {
+								navigation.navigate('Info' as never);
+								onClose();
+							}}
 						/>
 						<DrawerItem
 							icon="headset-outline"
 							label="Fale Conosco"
 							color={themeColors.text}
 							delay={600}
+							onPress={() => {
+								navigation.navigate('Contact' as never);
+								onClose();
+							}}
 						/>
 
 						<View style={[styles.drawerDivider, dividerStyle]} />
@@ -194,6 +226,10 @@ export default function SideMenu({
 							label="Configurações"
 							color={themeColors.text}
 							delay={700}
+							onPress={() => {
+								navigation.navigate('Settings' as never);
+								onClose();
+							}}
 						/>
 					</ScrollView>
 				</View>
@@ -262,11 +298,13 @@ function DrawerItem({
 	label,
 	color,
 	delay = 0,
+	onPress,
 }: {
 	icon: string;
 	label: string;
 	color: string;
 	delay?: number;
+	onPress: () => void;
 }) {
 	const { isDark } = useThemeColors();
 	const iconBgStyle = useMemo(
@@ -280,7 +318,11 @@ function DrawerItem({
 		<Animated.View
 			entering={FadeInLeft.delay(delay).duration(400).springify()}
 		>
-			<TouchableOpacity style={styles.drawerItem} activeOpacity={0.6}>
+			<TouchableOpacity
+				style={styles.drawerItem}
+				onPress={onPress}
+				activeOpacity={0.6}
+			>
 				<View style={[styles.drawerItemIconContainer, iconBgStyle]}>
 					<Ionicons name={icon as any} size={20} color={color} />
 				</View>
