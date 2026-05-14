@@ -20,8 +20,8 @@ import { AuthStackParamList } from '../../types/navigation';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import GoogleButton from '../../components/GoogleButton';
 import { registerUser } from '../../services/auth';
+import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 
 type RegisterNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -37,6 +37,7 @@ export default function RegisterScreen() {
 	const [phone, setPhone] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
+	const keyboardHeight = useKeyboardHeight();
 
 	const mutation = useMutation({
 		mutationFn: registerUser,
@@ -88,11 +89,14 @@ export default function RegisterScreen() {
 			]}
 		>
 			<KeyboardAvoidingView
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 				style={styles.keyboardView}
 			>
 				<ScrollView
-					contentContainerStyle={styles.scrollContent}
+					contentContainerStyle={[
+						styles.scrollContent,
+						{ paddingBottom: Math.max(keyboardHeight, 24) },
+					]}
 					keyboardShouldPersistTaps="handled"
 					showsVerticalScrollIndicator={false}
 				>
@@ -178,34 +182,6 @@ export default function RegisterScreen() {
 							loading={mutation.isPending}
 							className="mt-4 mb-8"
 						/>
-
-						<View className="flex-row items-center mb-8">
-							<View
-								className="flex-1 h-[1px]"
-								style={[
-									styles.dividerLine,
-									{ backgroundColor: themeColors.border },
-								]}
-							/>
-							<Text
-								className="mx-6 text-xs font-bold tracking-widest"
-								style={[
-									styles.dividerText,
-									{ color: themeColors.secondary },
-								]}
-							>
-								OU USE
-							</Text>
-							<View
-								className="flex-1 h-[1px]"
-								style={[
-									styles.dividerLine,
-									{ backgroundColor: themeColors.border },
-								]}
-							/>
-						</View>
-
-						<GoogleButton onPress={() => {}} />
 
 						<View className="flex-row items-center justify-center mt-12 mb-6">
 							<Text

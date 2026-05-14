@@ -12,12 +12,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useAuthStore } from '../../store/authStore';
 import SideMenu from '../../components/SideMenu';
 
 // const { width } = Dimensions.get('window'); // Not used currently
 
 export default function HomeScreen() {
 	const { themeColors, isDark } = useThemeColors();
+	const user = useAuthStore((state) => state.user);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [destination, setDestination] = useState('');
 
@@ -68,7 +70,7 @@ export default function HomeScreen() {
 			<SideMenu
 				isOpen={isMenuOpen}
 				onClose={toggleMenu}
-				userName="Lourenço António"
+				userName={user?.name || 'Usuário'}
 			/>
 
 			{/* Header */}
@@ -113,7 +115,7 @@ export default function HomeScreen() {
 							{ color: themeColors.secondary },
 						]}
 					>
-						Olá, Lourenço
+						Olá, {user?.name?.split(' ')[0] || 'Usuário'}
 					</Text>
 					<Text
 						style={[styles.mainTitle, { color: themeColors.text }]}

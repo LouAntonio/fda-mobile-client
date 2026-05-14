@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Text, Alert, Image, ScrollView, StyleSheet } from 'react-native';
+import {
+	Text,
+	Alert,
+	Image,
+	ScrollView,
+	KeyboardAvoidingView,
+	Platform,
+	StyleSheet,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -11,6 +19,7 @@ import { useThemeColors } from '../../hooks/useThemeColors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { resetPassword } from '../../services/auth';
+import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 
 type ResetPasswordNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -27,6 +36,7 @@ export default function ResetPasswordScreen() {
 
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
+	const keyboardHeight = useKeyboardHeight();
 
 	const mutation = useMutation({
 		mutationFn: resetPassword,
@@ -66,69 +76,80 @@ export default function ResetPasswordScreen() {
 				{ backgroundColor: themeColors.background },
 			]}
 		>
-			<ScrollView
-				contentContainerStyle={styles.scrollContent}
-				keyboardShouldPersistTaps="handled"
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				style={styles.flex}
 			>
-				<Animated.View
-					entering={FadeInDown.duration(800).delay(200)}
-					className="items-center mb-10"
+				<ScrollView
+					contentContainerStyle={[
+						styles.scrollContent,
+						{ paddingBottom: Math.max(keyboardHeight, 24) },
+					]}
+					keyboardShouldPersistTaps="handled"
 				>
-					<Image
-						source={require('../../../assets/images/logo.png')}
-						style={styles.logo}
-						className="mb-6 rounded-3xl"
-					/>
-					<Text
-						className="text-3xl font-black mb-4 text-center tracking-tighter"
-						style={{ color: themeColors.text }}
+					<Animated.View
+						entering={FadeInDown.duration(800).delay(200)}
+						className="items-center mb-10"
 					>
-						NOVA SENHA
-					</Text>
-					<Text
-						className="text-base text-center px-4"
-						style={[
-							styles.description,
-							{ color: themeColors.secondary },
-						]}
-					>
-						Crie uma nova senha segura para o seu acesso.
-					</Text>
-				</Animated.View>
+						<Image
+							source={require('../../../assets/images/logo.png')}
+							style={styles.logo}
+							className="mb-6 rounded-3xl"
+						/>
+						<Text
+							className="text-3xl font-black mb-4 text-center tracking-tighter"
+							style={{ color: themeColors.text }}
+						>
+							NOVA SENHA
+						</Text>
+						<Text
+							className="text-base text-center px-4"
+							style={[
+								styles.description,
+								{ color: themeColors.secondary },
+							]}
+						>
+							Crie uma nova senha segura para o seu acesso.
+						</Text>
+					</Animated.View>
 
-				<Animated.View entering={FadeInUp.duration(800).delay(400)}>
-					<Input
-						label="Nova Senha"
-						placeholder="Digite a nova senha"
-						value={password}
-						onChangeText={setPassword}
-						isPassword
-						leftIcon="lock-closed-outline"
-					/>
+					<Animated.View entering={FadeInUp.duration(800).delay(400)}>
+						<Input
+							label="Nova Senha"
+							placeholder="Digite a nova senha"
+							value={password}
+							onChangeText={setPassword}
+							isPassword
+							leftIcon="lock-closed-outline"
+						/>
 
-					<Input
-						label="Confirmar Senha"
-						placeholder="Confirme a nova senha"
-						value={confirmPassword}
-						onChangeText={setConfirmPassword}
-						isPassword
-						leftIcon="lock-closed-outline"
-					/>
+						<Input
+							label="Confirmar Senha"
+							placeholder="Confirme a nova senha"
+							value={confirmPassword}
+							onChangeText={setConfirmPassword}
+							isPassword
+							leftIcon="lock-closed-outline"
+						/>
 
-					<Button
-						title="Atualizar Senha"
-						onPress={handleReset}
-						loading={mutation.isPending}
-						className="mt-4 mb-8"
-					/>
-				</Animated.View>
-			</ScrollView>
+						<Button
+							title="Atualizar Senha"
+							onPress={handleReset}
+							loading={mutation.isPending}
+							className="mt-4 mb-8"
+						/>
+					</Animated.View>
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
 	safeArea: {
+		flex: 1,
+	},
+	flex: {
 		flex: 1,
 	},
 	scrollContent: {

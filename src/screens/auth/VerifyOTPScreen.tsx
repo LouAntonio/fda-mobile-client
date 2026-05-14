@@ -8,6 +8,8 @@ import {
 	ScrollView,
 	TextInput,
 	Pressable,
+	KeyboardAvoidingView,
+	Platform,
 	StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +22,7 @@ import { AuthStackParamList } from '../../types/navigation';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import Button from '../../components/Button';
 import { forgotPassword } from '../../services/auth';
+import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 
 type VerifyOTPNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -35,6 +38,7 @@ export default function VerifyOTPScreen() {
 
 	const [otp, setOtp] = useState('');
 	const inputRef = useRef<TextInput>(null);
+	const keyboardHeight = useKeyboardHeight();
 
 	const resendMutation = useMutation({
 		mutationFn: forgotPassword,
@@ -115,91 +119,109 @@ export default function VerifyOTPScreen() {
 
 	return (
 		<SafeAreaView style={[styles.safeArea, safeAreaStyle]}>
-			<ScrollView
-				contentContainerStyle={styles.scrollContent}
-				keyboardShouldPersistTaps="handled"
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				style={styles.flex}
 			>
-				<Animated.View
-					entering={FadeInDown.duration(800).delay(200)}
-					className="items-center mb-10"
+				<ScrollView
+					contentContainerStyle={[
+						styles.scrollContent,
+						{ paddingBottom: Math.max(keyboardHeight, 24) },
+					]}
+					keyboardShouldPersistTaps="handled"
 				>
-					<Image
-						source={require('../../../assets/images/logo.png')}
-						style={styles.logo}
-						className="mb-6 rounded-3xl"
-					/>
-					<Text
-						className="text-3xl font-black mb-4 text-center tracking-tighter"
-						style={textStyle}
+					<Animated.View
+						entering={FadeInDown.duration(800).delay(200)}
+						className="items-center mb-10"
 					>
-						VERIFICAR CÓDIGO
-					</Text>
-					<Text
-						className="text-base text-center px-4"
-						style={[styles.description, secondaryTextStyle]}
-					>
-						Enviamos um código de verificação para o número {phone}.
-						Insira-o abaixo para continuar.
-					</Text>
-				</Animated.View>
+						<Image
+							source={require('../../../assets/images/logo.png')}
+							style={styles.logo}
+							className="mb-6 rounded-3xl"
+						/>
+						<Text
+							className="text-3xl font-black mb-4 text-center tracking-tighter"
+							style={textStyle}
+						>
+							VERIFICAR CÓDIGO
+						</Text>
+						<Text
+							className="text-base text-center px-4"
+							style={[styles.description, secondaryTextStyle]}
+						>
+							Enviamos um código de verificação para o número{' '}
+							{phone}. Insira-o abaixo para continuar.
+						</Text>
+					</Animated.View>
 
-				<Animated.View entering={FadeInUp.duration(800).delay(400)}>
-					<Pressable
-						onPress={() => inputRef.current?.focus()}
-						className="flex-row justify-center mb-10"
-					>
-						{renderOtpBoxes()}
-					</Pressable>
+					<Animated.View entering={FadeInUp.duration(800).delay(400)}>
+						<Pressable
+							onPress={() => inputRef.current?.focus()}
+							className="flex-row justify-center mb-10"
+						>
+							{renderOtpBoxes()}
+						</Pressable>
 
-					<TextInput
-						ref={inputRef}
-						value={otp}
-						onChangeText={(text) => {
-							if (text.length <= 6) setOtp(text);
-						}}
-						keyboardType="number-pad"
-						maxLength={6}
-						style={styles.hiddenInput}
-					/>
+						<TextInput
+							ref={inputRef}
+							value={otp}
+							onChangeText={(text) => {
+								if (text.length <= 6) setOtp(text);
+							}}
+							keyboardType="number-pad"
+							maxLength={6}
+							style={styles.hiddenInput}
+						/>
 
-					<Button
-						title="Verificar Código"
-						onPress={handleVerify}
-						className="mt-4 mb-8"
-					/>
+						<Button
+							title="Verificar Código"
+							onPress={handleVerify}
+							className="mt-4 mb-8"
+						/>
 
-					<TouchableOpacity
-						onPress={() =>
-							resendMutation.mutate({ phoneNumber: phone })
-						}
-						className="items-center py-2"
-						activeOpacity={0.6}
-					>
-						<Text style={[styles.resendText, secondaryTextStyle]}>
-							Não recebeu o código?{' '}
-							<Text style={[styles.resendLink, primaryTextStyle]}>
-								REENVIAR
+						<TouchableOpacity
+							onPress={() =>
+								resendMutation.mutate({ phoneNumber: phone })
+							}
+							className="items-center py-2"
+							activeOpacity={0.6}
+						>
+							<Text
+								style={[styles.resendText, secondaryTextStyle]}
+							>
+								Não recebeu o código?{' '}
+								<Text
+									style={[
+										styles.resendLink,
+										primaryTextStyle,
+									]}
+								>
+									REENVIAR
+								</Text>
 							</Text>
-						</Text>
-					</TouchableOpacity>
+						</TouchableOpacity>
 
-					<TouchableOpacity
-						onPress={() => navigation.goBack()}
-						className="items-center py-6"
-						activeOpacity={0.6}
-					>
-						<Text style={[styles.backText, primaryTextStyle]}>
-							VOLTAR
-						</Text>
-					</TouchableOpacity>
-				</Animated.View>
-			</ScrollView>
+						<TouchableOpacity
+							onPress={() => navigation.goBack()}
+							className="items-center py-6"
+							activeOpacity={0.6}
+						>
+							<Text style={[styles.backText, primaryTextStyle]}>
+								VOLTAR
+							</Text>
+						</TouchableOpacity>
+					</Animated.View>
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
 	safeArea: {
+		flex: 1,
+	},
+	flex: {
 		flex: 1,
 	},
 	scrollContent: {

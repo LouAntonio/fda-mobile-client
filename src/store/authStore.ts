@@ -3,8 +3,17 @@ import { create } from 'zustand';
 export type User = {
 	id: string;
 	name: string;
+	surname: string;
 	phoneNumber: string;
+	email?: string | null;
+	emailVerified?: boolean;
+	phoneNumberVerified?: boolean;
+	image?: string | null;
 	role: string;
+	emergencyContactName?: string | null;
+	emergencyContactPhone?: string | null;
+	createdAt?: string;
+	updatedAt?: string;
 };
 
 type AuthState = {

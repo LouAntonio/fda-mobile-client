@@ -5,6 +5,8 @@ import {
 	Alert,
 	Image,
 	ScrollView,
+	KeyboardAvoidingView,
+	Platform,
 	StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +20,7 @@ import { useThemeColors } from '../../hooks/useThemeColors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { forgotPassword } from '../../services/auth';
+import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 
 type ForgotPasswordNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -29,6 +32,7 @@ export default function ForgotPasswordScreen() {
 	const { themeColors } = useThemeColors();
 
 	const [phone, setPhone] = useState('');
+	const keyboardHeight = useKeyboardHeight();
 
 	const mutation = useMutation({
 		mutationFn: forgotPassword,
@@ -70,76 +74,87 @@ export default function ForgotPasswordScreen() {
 				{ backgroundColor: themeColors.background },
 			]}
 		>
-			<ScrollView
-				contentContainerStyle={styles.scrollContent}
-				keyboardShouldPersistTaps="handled"
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				style={styles.flex}
 			>
-				<Animated.View
-					entering={FadeInDown.duration(800).delay(200)}
-					className="items-center mb-10"
+				<ScrollView
+					contentContainerStyle={[
+						styles.scrollContent,
+						{ paddingBottom: Math.max(keyboardHeight, 24) },
+					]}
+					keyboardShouldPersistTaps="handled"
 				>
-					<Image
-						source={require('../../../assets/images/logo.png')}
-						style={styles.logo}
-						className="mb-6 rounded-3xl"
-					/>
-					<Text
-						className="text-3xl font-black mb-4 text-center tracking-tighter"
-						style={{ color: themeColors.text }}
+					<Animated.View
+						entering={FadeInDown.duration(800).delay(200)}
+						className="items-center mb-10"
 					>
-						RECUPERAR ACESSO
-					</Text>
-					<Text
-						className="text-base text-center px-4"
-						style={[
-							styles.description,
-							{ color: themeColors.secondary },
-						]}
-					>
-						Informe o seu número de telefone para receber um código
-						de verificação (OTP).
-					</Text>
-				</Animated.View>
-
-				<Animated.View entering={FadeInUp.duration(800).delay(400)}>
-					<Input
-						label="Telefone"
-						placeholder="9XX XXX XXX"
-						value={phone}
-						onChangeText={setPhone}
-						keyboardType="phone-pad"
-						leftIcon="call-outline"
-					/>
-
-					<Button
-						title="Enviar Código OTP"
-						onPress={handleSendOTP}
-						loading={mutation.isPending}
-						className="mt-4 mb-8"
-					/>
-
-					<TouchableOpacity
-						onPress={() => navigation.goBack()}
-						className="items-center py-4"
-						activeOpacity={0.6}
-					>
+						<Image
+							source={require('../../../assets/images/logo.png')}
+							style={styles.logo}
+							className="mb-6 rounded-3xl"
+						/>
 						<Text
+							className="text-3xl font-black mb-4 text-center tracking-tighter"
+							style={{ color: themeColors.text }}
+						>
+							RECUPERAR ACESSO
+						</Text>
+						<Text
+							className="text-base text-center px-4"
 							style={[
-								styles.backText,
-								{ color: themeColors.primary },
+								styles.description,
+								{ color: themeColors.secondary },
 							]}
 						>
-							VOLTAR PARA LOGIN
+							Informe o seu número de telefone para receber um
+							código de verificação (OTP).
 						</Text>
-					</TouchableOpacity>
-				</Animated.View>
-			</ScrollView>
+					</Animated.View>
+
+					<Animated.View entering={FadeInUp.duration(800).delay(400)}>
+						<Input
+							label="Telefone"
+							placeholder="9XX XXX XXX"
+							value={phone}
+							onChangeText={setPhone}
+							keyboardType="phone-pad"
+							leftIcon="call-outline"
+						/>
+
+						<Button
+							title="Enviar Código OTP"
+							onPress={handleSendOTP}
+							loading={mutation.isPending}
+							className="mt-4 mb-8"
+						/>
+
+						<TouchableOpacity
+							onPress={() => navigation.goBack()}
+							className="items-center py-4"
+							activeOpacity={0.6}
+						>
+							<Text
+								style={[
+									styles.backText,
+									{ color: themeColors.primary },
+								]}
+							>
+								VOLTAR PARA LOGIN
+							</Text>
+						</TouchableOpacity>
+					</Animated.View>
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
 	safeArea: {
+		flex: 1,
+	},
+	flex: {
 		flex: 1,
 	},
 	scrollContent: {

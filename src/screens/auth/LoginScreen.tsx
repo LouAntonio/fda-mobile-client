@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import {
-	View,
 	Text,
 	TouchableOpacity,
 	ScrollView,
+	KeyboardAvoidingView,
+	Platform,
 	Alert,
 	Image,
 	StyleSheet,
@@ -19,8 +20,8 @@ import { useThemeColors } from '../../hooks/useThemeColors';
 import { useAuthStore } from '../../store/authStore';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import GoogleButton from '../../components/GoogleButton';
 import { loginUser } from '../../services/auth';
+import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 
 type LoginNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -33,6 +34,7 @@ export default function LoginScreen() {
 	const setAuth = useAuthStore((state) => state.setAuth);
 	const [phone, setPhone] = useState('');
 	const [password, setPassword] = useState('');
+	const keyboardHeight = useKeyboardHeight();
 
 	const mutation = useMutation({
 		mutationFn: loginUser,
@@ -65,143 +67,125 @@ export default function LoginScreen() {
 				{ backgroundColor: themeColors.background },
 			]}
 		>
-			<ScrollView
-				contentContainerStyle={styles.scrollContent}
-				keyboardShouldPersistTaps="handled"
-				showsVerticalScrollIndicator={false}
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				style={styles.flex}
 			>
-				<Animated.View
-					entering={FadeInDown.duration(800).delay(200)}
-					className="items-center mb-10"
+				<ScrollView
+					contentContainerStyle={[
+						styles.scrollContent,
+						{ paddingBottom: Math.max(keyboardHeight, 24) },
+					]}
+					keyboardShouldPersistTaps="handled"
+					showsVerticalScrollIndicator={false}
 				>
-					<Image
-						source={require('../../../assets/images/logo.png')}
-						style={styles.logo}
-						className="mb-6 rounded-3xl"
-					/>
-					<Text
-						className="text-4xl font-black mb-2 tracking-tighter"
-						style={{ color: themeColors.text }}
+					<Animated.View
+						entering={FadeInDown.duration(800).delay(200)}
+						className="items-center mb-10"
 					>
-						LOGIN
-					</Text>
-					<Text
-						className="text-lg font-medium text-center px-4"
-						style={[
-							styles.subtitle,
-							{ color: themeColors.secondary },
-						]}
-					>
-						Bem-vindo de volta! Faça login para continuar.
-					</Text>
-				</Animated.View>
-
-				<Animated.View entering={FadeInUp.duration(800).delay(400)}>
-					<Input
-						label="Telefone"
-						placeholder="9XX XXX XXX"
-						value={phone}
-						onChangeText={setPhone}
-						keyboardType="phone-pad"
-						autoCapitalize="none"
-						leftIcon="call-outline"
-					/>
-
-					<Input
-						label="Senha"
-						placeholder="Sua senha secreta"
-						value={password}
-						onChangeText={setPassword}
-						isPassword
-						leftIcon="lock-closed-outline"
-					/>
-
-					<TouchableOpacity
-						onPress={() => navigation.navigate('ForgotPassword')}
-						className="self-end mb-8"
-						activeOpacity={0.6}
-					>
-						<Text
-							style={[
-								styles.forgotPassword,
-								{ color: themeColors.primary },
-							]}
-						>
-							ESQUECEU A SENHA?
-						</Text>
-					</TouchableOpacity>
-
-					<Button
-						title="Entrar na conta"
-						onPress={handleLogin}
-						loading={mutation.isPending}
-						className="mb-8"
-					/>
-
-					<View className="flex-row items-center mb-8">
-						<View
-							className="flex-1 h-[1px]"
-							style={[
-								styles.dividerLine,
-								{ backgroundColor: themeColors.border },
-							]}
+						<Image
+							source={require('../../../assets/images/logo.png')}
+							style={styles.logo}
+							className="mb-6 rounded-3xl"
 						/>
 						<Text
-							className="mx-6 text-xs font-bold tracking-widest"
+							className="text-4xl font-black mb-2 tracking-tighter"
+							style={{ color: themeColors.text }}
+						>
+							LOGIN
+						</Text>
+						<Text
+							className="text-lg font-medium text-center px-4"
 							style={[
-								styles.dividerText,
+								styles.subtitle,
 								{ color: themeColors.secondary },
 							]}
 						>
-							OU CONTINUE COM
+							Bem-vindo de volta! Faça login para continuar.
 						</Text>
-						<View
-							className="flex-1 h-[1px]"
-							style={[
-								styles.dividerLine,
-								{ backgroundColor: themeColors.border },
-							]}
+					</Animated.View>
+
+					<Animated.View entering={FadeInUp.duration(800).delay(400)}>
+						<Input
+							label="Telefone"
+							placeholder="9XX XXX XXX"
+							value={phone}
+							onChangeText={setPhone}
+							keyboardType="phone-pad"
+							autoCapitalize="none"
+							leftIcon="call-outline"
 						/>
-					</View>
 
-					<GoogleButton
-						onPress={() => console.log('Google login')}
-						label="Google"
-					/>
-				</Animated.View>
+						<Input
+							label="Senha"
+							placeholder="Sua senha secreta"
+							value={password}
+							onChangeText={setPassword}
+							isPassword
+							leftIcon="lock-closed-outline"
+						/>
 
-				<Animated.View
-					entering={FadeInUp.duration(800).delay(600)}
-					className="flex-row items-center justify-center mt-12 mb-6"
-				>
-					<Text
-						style={[
-							styles.footerText,
-							{ color: themeColors.secondary },
-						]}
-					>
-						Novo por aqui?{' '}
-					</Text>
-					<TouchableOpacity
-						onPress={() => navigation.navigate('Register')}
+						<TouchableOpacity
+							onPress={() =>
+								navigation.navigate('ForgotPassword')
+							}
+							className="self-end mb-8"
+							activeOpacity={0.6}
+						>
+							<Text
+								style={[
+									styles.forgotPassword,
+									{ color: themeColors.primary },
+								]}
+							>
+								ESQUECEU A SENHA?
+							</Text>
+						</TouchableOpacity>
+
+						<Button
+							title="Entrar na conta"
+							onPress={handleLogin}
+							loading={mutation.isPending}
+							className="mb-8"
+						/>
+					</Animated.View>
+
+					<Animated.View
+						entering={FadeInUp.duration(800).delay(600)}
+						className="flex-row items-center justify-center mt-12 mb-6"
 					>
 						<Text
 							style={[
-								styles.footerLink,
-								{ color: themeColors.primary },
+								styles.footerText,
+								{ color: themeColors.secondary },
 							]}
 						>
-							CRIAR CONTA AGORA
+							Novo por aqui?{' '}
 						</Text>
-					</TouchableOpacity>
-				</Animated.View>
-			</ScrollView>
+						<TouchableOpacity
+							onPress={() => navigation.navigate('Register')}
+						>
+							<Text
+								style={[
+									styles.footerLink,
+									{ color: themeColors.primary },
+								]}
+							>
+								CRIAR CONTA AGORA
+							</Text>
+						</TouchableOpacity>
+					</Animated.View>
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
 	safeArea: {
+		flex: 1,
+	},
+	flex: {
 		flex: 1,
 	},
 	scrollContent: {

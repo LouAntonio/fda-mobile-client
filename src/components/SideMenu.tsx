@@ -164,7 +164,7 @@ export default function SideMenu({
 						contentContainerStyle={styles.scrollPadding}
 					>
 						<SectionHeader
-							title="Atividade"
+							title="Viagens"
 							color={themeColors.secondary}
 						/>
 						<DrawerItem
@@ -216,12 +216,12 @@ export default function SideMenu({
 
 						<View style={[styles.drawerDivider, dividerStyle]} />
 						<SectionHeader
-							title="Suporte"
+							title="Ajuda"
 							color={themeColors.secondary}
 						/>
 						<DrawerItem
 							icon="information-circle-outline"
-							label="Informações"
+							label="Central de Ajuda"
 							color={themeColors.text}
 							delay={500}
 							onPress={() => {

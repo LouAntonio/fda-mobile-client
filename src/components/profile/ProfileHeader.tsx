@@ -3,16 +3,24 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ProfileHeaderProps {
-	userName: string;
-	email: string;
-	phone: string;
+	name: string;
+	surname: string;
+	phoneNumber: string;
+	email?: string | null;
+	image?: string | null;
+	phoneNumberVerified?: boolean;
+	emailVerified?: boolean;
 	onEditPress: () => void;
 }
 
 export function ProfileHeader({
-	userName,
+	name,
+	surname,
+	phoneNumber,
 	email,
-	phone,
+	image,
+	phoneNumberVerified,
+	emailVerified,
 	onEditPress,
 }: ProfileHeaderProps) {
 	return (
@@ -28,28 +36,26 @@ export function ProfileHeader({
 
 			<View className="items-center px-5 pb-6 -mt-12">
 				<View className="mb-3">
-					<Image
-						source={require('../../../assets/images/logo.png')}
-						className="w-24 h-24 rounded-full border-4 border-white dark:border-soft-black bg-white"
-						style={styles.avatarShadow}
-					/>
+					{image ? (
+						<Image
+							source={{ uri: image }}
+							className="w-24 h-24 rounded-full border-4 border-white dark:border-soft-black bg-white"
+							style={styles.avatarShadow}
+						/>
+					) : (
+						<View className="w-24 h-24 rounded-full border-4 border-white dark:border-soft-black bg-primary items-center justify-center">
+							<Text className="text-3xl font-extrabold text-secondary">
+								{`${name.charAt(0)}${surname.charAt(0)}`.toUpperCase()}
+							</Text>
+						</View>
+					)}
 				</View>
 
 				<Text className="text-2xl font-extrabold text-secondary dark:text-off-white tracking-tight">
-					{userName}
+					{name} {surname}
 				</Text>
 
 				<View className="items-center mt-3 space-y-2">
-					<View className="flex-row items-center">
-						<Ionicons
-							name="mail-outline"
-							size={14}
-							color="#6B7280"
-						/>
-						<Text className="text-sm text-gray-500 dark:text-gray-400 ml-1.5">
-							{email}
-						</Text>
-					</View>
 					<View className="flex-row items-center">
 						<Ionicons
 							name="call-outline"
@@ -57,9 +63,37 @@ export function ProfileHeader({
 							color="#6B7280"
 						/>
 						<Text className="text-sm text-gray-500 dark:text-gray-400 ml-1.5">
-							{phone}
+							{phoneNumber}
 						</Text>
+						{phoneNumberVerified && (
+							<Ionicons
+								name="checkmark-circle"
+								size={14}
+								color="#10B981"
+								style={styles.verifiedIcon}
+							/>
+						)}
 					</View>
+					{email && (
+						<View className="flex-row items-center">
+							<Ionicons
+								name="mail-outline"
+								size={14}
+								color="#6B7280"
+							/>
+							<Text className="text-sm text-gray-500 dark:text-gray-400 ml-1.5">
+								{email}
+							</Text>
+							{emailVerified && (
+								<Ionicons
+									name="checkmark-circle"
+									size={14}
+									color="#10B981"
+									style={styles.verifiedIcon}
+								/>
+							)}
+						</View>
+					)}
 				</View>
 
 				<TouchableOpacity
@@ -97,5 +131,8 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.3,
 		shadowRadius: 8,
 		elevation: 4,
+	},
+	verifiedIcon: {
+		marginLeft: 4,
 	},
 });
