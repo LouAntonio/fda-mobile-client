@@ -13,12 +13,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { AuthStackParamList } from '../../types/navigation';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import GoogleButton from '../../components/GoogleButton';
+import { registerUser } from '../../services/auth';
 
 type RegisterNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -33,13 +36,48 @@ export default function RegisterScreen() {
 	const [lastName, setLastName] = useState('');
 	const [phone, setPhone] = useState('');
 	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
+
+	const mutation = useMutation({
+		mutationFn: registerUser,
+		onSuccess: () => {
+			Alert.alert('Sucesso', 'Conta criada com sucesso!', [
+				{
+					text: 'OK',
+					onPress: () => navigation.navigate('Login'),
+				},
+			]);
+		},
+		onError: (err: AxiosError<{ message?: string }>) => {
+			console.error('Erro ao registrar:', err);
+			Alert.alert(
+				'Erro',
+				err.response?.data?.message || 'Erro ao criar conta.',
+			);
+		},
+	});
 
 	const handleRegister = () => {
-		if (!firstName || !lastName || !phone || !password) {
+		if (
+			!firstName ||
+			!lastName ||
+			!phone ||
+			!password ||
+			!confirmPassword
+		) {
 			Alert.alert('Erro', 'Por favor, preencha todos os campos.');
 			return;
 		}
-		// handle auth logic soon
+		if (password !== confirmPassword) {
+			Alert.alert('Erro', 'As senhas não coincidem.');
+			return;
+		}
+		mutation.mutate({
+			name: firstName,
+			surname: lastName,
+			phoneNumber: phone,
+			password,
+		});
 	};
 
 	return (
@@ -125,9 +163,19 @@ export default function RegisterScreen() {
 							leftIcon="lock-closed-outline"
 						/>
 
+						<Input
+							label="Confirmar Senha"
+							placeholder="Repita sua senha"
+							value={confirmPassword}
+							onChangeText={setConfirmPassword}
+							isPassword
+							leftIcon="lock-closed-outline"
+						/>
+
 						<Button
 							title="Criar minha conta"
 							onPress={handleRegister}
+							loading={mutation.isPending}
 							className="mt-4 mb-8"
 						/>
 

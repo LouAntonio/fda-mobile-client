@@ -10,11 +10,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { AuthStackParamList } from '../../types/navigation';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import { forgotPassword } from '../../services/auth';
 
 type ForgotPasswordNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -27,14 +30,37 @@ export default function ForgotPasswordScreen() {
 
 	const [phone, setPhone] = useState('');
 
+	const mutation = useMutation({
+		mutationFn: forgotPassword,
+		onSuccess: (res) => {
+			Alert.alert(
+				'Sucesso',
+				res.data.message ||
+					'Se existir uma conta, receberá um código OTP.',
+				[
+					{
+						text: 'OK',
+						onPress: () =>
+							navigation.navigate('VerifyOTP', { phone }),
+					},
+				],
+			);
+		},
+		onError: (err: AxiosError<{ message?: string }>) => {
+			console.error('Erro ao enviar OTP:', err);
+			Alert.alert(
+				'Erro',
+				err.response?.data?.message || 'Erro ao enviar código.',
+			);
+		},
+	});
+
 	const handleSendOTP = () => {
 		if (!phone) {
 			Alert.alert('Erro', 'Por favor, insira o seu número de telefone.');
 			return;
 		}
-		// logic to send OTP soon
-		Alert.alert('Sucesso', 'Código OTP enviado para o seu telefone.');
-		navigation.navigate('VerifyOTP', { phone });
+		mutation.mutate({ phoneNumber: phone });
 	};
 
 	return (
@@ -88,6 +114,7 @@ export default function ForgotPasswordScreen() {
 					<Button
 						title="Enviar Código OTP"
 						onPress={handleSendOTP}
+						loading={mutation.isPending}
 						className="mt-4 mb-8"
 					/>
 

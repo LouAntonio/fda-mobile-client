@@ -4,18 +4,23 @@ import {
 	Text,
 	TouchableOpacity,
 	ScrollView,
+	Alert,
 	Image,
 	StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { AuthStackParamList } from '../../types/navigation';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useAuthStore } from '../../store/authStore';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import GoogleButton from '../../components/GoogleButton';
+import { loginUser } from '../../services/auth';
 
 type LoginNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -25,13 +30,32 @@ type LoginNavigationProp = NativeStackNavigationProp<
 export default function LoginScreen() {
 	const navigation = useNavigation<LoginNavigationProp>();
 	const { themeColors } = useThemeColors();
+	const setAuth = useAuthStore((state) => state.setAuth);
 	const [phone, setPhone] = useState('');
 	const [password, setPassword] = useState('');
 
+	const mutation = useMutation({
+		mutationFn: loginUser,
+		onSuccess: (res) => {
+			setAuth(res.data.user, res.data.token);
+			// @ts-ignore - Main is in RootStackParamList
+			navigation.replace('Main');
+		},
+		onError: (err: AxiosError<{ message?: string }>) => {
+			console.error('Erro ao fazer login:', err);
+			Alert.alert(
+				'Erro',
+				err.response?.data?.message || 'Erro ao fazer login.',
+			);
+		},
+	});
+
 	const handleLogin = () => {
-		// handle auth logic soon
-		// @ts-ignore - Main is in RootStackParamList
-		navigation.replace('Main');
+		if (!phone || !password) {
+			Alert.alert('Erro', 'Preencha todos os campos.');
+			return;
+		}
+		mutation.mutate({ phoneNumber: phone, password });
 	};
 
 	return (
@@ -110,6 +134,7 @@ export default function LoginScreen() {
 					<Button
 						title="Entrar na conta"
 						onPress={handleLogin}
+						loading={mutation.isPending}
 						className="mb-8"
 					/>
 

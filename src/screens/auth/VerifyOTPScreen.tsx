@@ -13,10 +13,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { AuthStackParamList } from '../../types/navigation';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import Button from '../../components/Button';
+import { forgotPassword } from '../../services/auth';
 
 type VerifyOTPNavigationProp = NativeStackNavigationProp<
 	AuthStackParamList,
@@ -32,6 +35,20 @@ export default function VerifyOTPScreen() {
 
 	const [otp, setOtp] = useState('');
 	const inputRef = useRef<TextInput>(null);
+
+	const resendMutation = useMutation({
+		mutationFn: forgotPassword,
+		onSuccess: () => {
+			Alert.alert('Sucesso', 'Novo código enviado para o seu telefone.');
+		},
+		onError: (err: AxiosError<{ message?: string }>) => {
+			console.error('Erro ao reenviar OTP:', err);
+			Alert.alert(
+				'Erro',
+				err.response?.data?.message || 'Erro ao reenviar código.',
+			);
+		},
+	});
 
 	const handleVerify = () => {
 		if (otp.length < 6) {
@@ -153,7 +170,7 @@ export default function VerifyOTPScreen() {
 
 					<TouchableOpacity
 						onPress={() =>
-							Alert.alert('Sucesso', 'Novo código enviado.')
+							resendMutation.mutate({ phoneNumber: phone })
 						}
 						className="items-center py-2"
 						activeOpacity={0.6}
