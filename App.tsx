@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Appearance, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
+import { navigationRef } from './src/lib/navigationRef';
 import { useThemeStore } from './src/store/themeStore';
 import { useThemeColors } from './src/hooks/useThemeColors';
 import RootNavigator from './src/navigation/RootNavigator';
@@ -32,7 +33,7 @@ export default function App() {
 						Platform.OS === 'android' ? 'transparent' : undefined
 					}
 				/>
-				<NavigationContainer>
+				<NavigationContainer ref={navigationRef}>
 					<RootNavigator />
 				</NavigationContainer>
 			</SafeAreaProvider>

@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_URL } from '@env';
 import { useAuthStore } from '../store/authStore';
 import { refreshTokens } from '../services/auth';
+import { navigationRef } from './navigationRef';
 
 export const api = axios.create({
 	baseURL: API_URL,
@@ -34,6 +35,17 @@ function processQueue(error: unknown, token: string | null = null) {
 	failedQueue = [];
 }
 
+function navigateToAuth() {
+	if (navigationRef.isReady()) {
+		navigationRef.reset({
+			index: 0,
+			routes: [{ name: 'Auth' }],
+		});
+	}
+}
+
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+
 api.interceptors.response.use(
 	(response) => {
 		if (
@@ -50,10 +62,15 @@ api.interceptors.response.use(
 			_retry?: boolean;
 		};
 
-		if (error.response?.status === 401 && !originalRequest._retry) {
+		if (
+			error.response?.status === 401 &&
+			!originalRequest._retry &&
+			!AUTH_ENDPOINTS.some((ep) => originalRequest.url?.includes(ep))
+		) {
 			const { refreshToken } = useAuthStore.getState();
 			if (!refreshToken) {
 				useAuthStore.getState().logout();
+				navigateToAuth();
 				return Promise.reject(error);
 			}
 
@@ -84,6 +101,7 @@ api.interceptors.response.use(
 			} catch (refreshError) {
 				processQueue(refreshError, null);
 				useAuthStore.getState().logout();
+				navigateToAuth();
 				return Promise.reject(refreshError);
 			} finally {
 				isRefreshing = false;

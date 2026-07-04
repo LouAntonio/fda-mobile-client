@@ -87,8 +87,8 @@ export default function SideMenu({
 				text: 'Sair',
 				style: 'destructive',
 				onPress: async () => {
-					const refreshToken = useAuthStore.getState().refreshToken;
-					if (refreshToken) {
+					const { refreshToken, accessToken } = useAuthStore.getState();
+					if (refreshToken && accessToken) {
 						try {
 							await logoutUser(refreshToken);
 						} catch {
