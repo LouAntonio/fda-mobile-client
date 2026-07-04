@@ -10,6 +10,8 @@ export interface TripFromApi {
 	pickupReference: string | null;
 	dropoffAddress: string;
 	dropoffReference: string | null;
+	pickupCoords?: string;
+	dropoffCoords?: string;
 	estimatedDistanceKm: number | null;
 	estimatedDurationMin: number | null;
 	actualDistanceKm: number | null;

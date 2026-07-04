@@ -1,12 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useAuthStore } from '../store/authStore';
-import {
-	connectSocket,
-	disconnectSocket,
-	joinTripRoom,
-	leaveTripRoom,
-	getSocket,
-} from '../lib/socket';
+import { socketManager } from '../lib/socket-manager';
 import { useQueryClient } from '@tanstack/react-query';
 import { tripKeys } from '../lib/queryKeys';
 
@@ -21,64 +15,68 @@ export function useActiveTripSocket({
 }: UseActiveTripSocketOptions) {
 	const accessToken = useAuthStore((state) => state.accessToken);
 	const queryClient = useQueryClient();
-	const isConnected = useRef(false);
+
+	const [driverLocation, setDriverLocation] = useState<{
+		lat: number;
+		lng: number;
+	} | null>(null);
+
+	const cleanupFns = useRef<(() => void)[]>([]);
 
 	const connect = useCallback(() => {
-		if (!accessToken || isConnected.current) return;
-		connectSocket(accessToken);
-		isConnected.current = true;
+		if (!accessToken) return;
+		socketManager.connect(accessToken);
 	}, [accessToken]);
 
 	const disconnect = useCallback(() => {
-		disconnectSocket();
-		isConnected.current = false;
+		socketManager.disconnect();
 	}, []);
 
 	useEffect(() => {
 		if (!enabled || !tripId || !accessToken) return;
 
 		connect();
-		const socket = getSocket();
-		if (!socket) return;
+		socketManager.joinTrip(tripId);
 
-		joinTripRoom(tripId);
+		const off1 = socketManager.on('trip:status', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
 
-		const handleStatus = () => {
-			queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
-		};
+		const off2 = socketManager.on('trip:driver_assigned', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
 
-		const handleDriverAssigned = () => {
-			queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
-		};
+		const off3 = socketManager.on('trip:location', (data) => {
+			setDriverLocation({ lat: data.lat, lng: data.lng });
+		});
 
-		const handleLocation = () => {
-			queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
-		};
+		const off4 = socketManager.on('trip:delivery_status', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
 
-		const handleDeliveryStatus = () => {
-			queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
-		};
+		const off5 = socketManager.on('trip:payment_update', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
 
-		const handlePaymentUpdate = () => {
-			queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
-		};
-
-		socket.on('trip:status', handleStatus);
-		socket.on('trip:driver_assigned', handleDriverAssigned);
-		socket.on('trip:location', handleLocation);
-		socket.on('trip:delivery_status', handleDeliveryStatus);
-		socket.on('trip:payment_update', handlePaymentUpdate);
+		cleanupFns.current = [off1, off2, off3, off4, off5];
 
 		return () => {
-			leaveTripRoom(tripId);
-			socket.off('trip:status', handleStatus);
-			socket.off('trip:driver_assigned', handleDriverAssigned);
-			socket.off('trip:location', handleLocation);
-			socket.off('trip:delivery_status', handleDeliveryStatus);
-			socket.off('trip:payment_update', handlePaymentUpdate);
-			disconnect();
+			socketManager.leaveTrip(tripId);
+			for (const cleanup of cleanupFns.current) {
+				cleanup();
+			}
+			cleanupFns.current = [];
+			setDriverLocation(null);
 		};
-	}, [tripId, enabled, accessToken, connect, disconnect, queryClient]);
+	}, [tripId, enabled, accessToken, connect, queryClient]);
 
-	return { connect, disconnect };
+	return { connect, disconnect, driverLocation };
 }

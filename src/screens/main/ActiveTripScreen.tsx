@@ -38,12 +38,23 @@ export default function ActiveTripScreen() {
 
 	const { data: trip, isLoading } = useTrip(tripId);
 	const cancelMutation = useCancelTrip();
+	const { driverLocation } = useActiveTripSocket({ tripId, enabled: true });
 
-	useActiveTripSocket({ tripId, enabled: true });
-
-	const statusInfo = trip ? STATUS_LABELS[trip.status] ?? STATUS_LABELS.REQUESTED : STATUS_LABELS.REQUESTED;
+	const statusInfo = trip
+		? STATUS_LABELS[trip.status] ?? STATUS_LABELS.REQUESTED
+		: STATUS_LABELS.REQUESTED;
 	const driver = trip?.driver;
 	const vehicle = driver?.vehicles?.[0];
+
+	const markers = [];
+	if (driverLocation) {
+		markers.push({
+			id: 'driver',
+			latitude: driverLocation.lat,
+			longitude: driverLocation.lng,
+			title: 'Motorista',
+		});
+	}
 
 	const handleCancel = () => {
 		if (!showCancelInput) {
@@ -76,7 +87,10 @@ export default function ActiveTripScreen() {
 
 	if (isLoading) {
 		return (
-			<SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: themeColors.background }}>
+			<SafeAreaView
+				className="flex-1 items-center justify-center"
+				style={{ backgroundColor: themeColors.background }}
+			>
 				<ActivityIndicator size="large" color={themeColors.primary} />
 			</SafeAreaView>
 		);
@@ -85,15 +99,25 @@ export default function ActiveTripScreen() {
 	const isTerminal = trip?.status === 'COMPLETED' || trip?.status === 'CANCELLED';
 
 	return (
-		<SafeAreaView className="flex-1" style={{ backgroundColor: themeColors.background }}>
+		<SafeAreaView
+			className="flex-1"
+			style={{ backgroundColor: themeColors.background }}
+		>
 			<View className="flex-row items-center justify-between px-4 py-3">
 				<TouchableOpacity
 					onPress={() => navigation.goBack()}
 					className="w-10 h-10 items-center justify-center rounded-full bg-black/5 dark:bg-white/10"
 				>
-					<Ionicons name={isTerminal ? 'chevron-back' : 'close'} size={22} color={themeColors.text} />
+					<Ionicons
+						name={isTerminal ? 'chevron-back' : 'close'}
+						size={22}
+						color={themeColors.text}
+					/>
 				</TouchableOpacity>
-				<Text className="text-lg font-bold" style={{ color: themeColors.text }}>
+				<Text
+					className="text-lg font-bold"
+					style={{ color: themeColors.text }}
+				>
 					{isTerminal ? 'Viagem' : 'Viagem Ativa'}
 				</Text>
 				<View className="w-10" />
@@ -108,10 +132,12 @@ export default function ActiveTripScreen() {
 						latitudeDelta: 0.02,
 						longitudeDelta: 0.02,
 					}}
+					markers={markers}
 				/>
 			</View>
 
-			<Animated.View entering={FadeInDown.duration(500)}
+			<Animated.View
+				entering={FadeInDown.duration(500)}
 				className="mx-4 mb-4 p-5 rounded-3xl"
 				style={{
 					backgroundColor: isDark ? '#1A1A1A' : '#FFF',
@@ -123,8 +149,14 @@ export default function ActiveTripScreen() {
 				}}
 			>
 				<View className="flex-row items-center mb-4">
-					<View className="w-3 h-3 rounded-full mr-3" style={{ backgroundColor: statusInfo.color }} />
-					<Text className="text-base font-bold flex-1" style={{ color: themeColors.text }}>
+					<View
+						className="w-3 h-3 rounded-full mr-3"
+						style={{ backgroundColor: statusInfo.color }}
+					/>
+					<Text
+						className="text-base font-bold flex-1"
+						style={{ color: themeColors.text }}
+					>
 						{statusInfo.label}
 					</Text>
 				</View>
@@ -138,10 +170,18 @@ export default function ActiveTripScreen() {
 								<View className="w-2.5 h-2.5 rounded-full bg-primary" />
 							</View>
 							<View className="flex-1 gap-2">
-								<Text className="text-sm font-semibold" style={{ color: themeColors.text }} numberOfLines={1}>
+								<Text
+									className="text-sm font-semibold"
+									style={{ color: themeColors.text }}
+									numberOfLines={1}
+								>
 									{trip.pickupAddress}
 								</Text>
-								<Text className="text-sm font-semibold" style={{ color: themeColors.text }} numberOfLines={1}>
+								<Text
+									className="text-sm font-semibold"
+									style={{ color: themeColors.text }}
+									numberOfLines={1}
+								>
 									{trip.dropoffAddress}
 								</Text>
 							</View>
@@ -150,14 +190,18 @@ export default function ActiveTripScreen() {
 				)}
 
 				{driver && (
-					<View className="flex-row items-center py-3 border-t mb-3"
+					<View
+						className="flex-row items-center py-3 border-t mb-3"
 						style={{ borderColor: isDark ? '#333' : '#F3F4F6' }}
 					>
 						<View className="w-12 h-12 rounded-full items-center justify-center bg-primary/20">
 							<Ionicons name="person" size={24} color={themeColors.primary} />
 						</View>
 						<View className="flex-1 ml-3">
-							<Text className="text-base font-bold" style={{ color: themeColors.text }}>
+							<Text
+								className="text-base font-bold"
+								style={{ color: themeColors.text }}
+							>
 								{driver.user.name} {driver.user.surname}
 							</Text>
 							{vehicle && (
@@ -176,11 +220,15 @@ export default function ActiveTripScreen() {
 				)}
 
 				{trip && (
-					<View className="flex-row justify-between items-center border-t pt-3"
+					<View
+						className="flex-row justify-between items-center border-t pt-3"
 						style={{ borderColor: isDark ? '#333' : '#F3F4F6' }}
 					>
 						<Text className="text-sm font-semibold text-gray-500">Total</Text>
-						<Text className="text-xl font-black" style={{ color: themeColors.primary }}>
+						<Text
+							className="text-xl font-black"
+							style={{ color: themeColors.primary }}
+						>
 							{Number(trip.totalPrice).toLocaleString('pt-AO')} Kz
 						</Text>
 					</View>
@@ -197,7 +245,8 @@ export default function ActiveTripScreen() {
 
 				{showCancelInput && (
 					<View className="mt-4">
-						<View className="px-4 py-3 rounded-2xl border mb-3"
+						<View
+							className="px-4 py-3 rounded-2xl border mb-3"
 							style={{
 								backgroundColor: isDark ? '#1A1A1A' : '#F9FAFB',
 								borderColor: isDark ? '#333' : '#E5E7EB',
