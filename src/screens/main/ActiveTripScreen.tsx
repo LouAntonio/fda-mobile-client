@@ -146,10 +146,39 @@ export default function ActiveTripScreen() {
 	if (isLoading) {
 		return (
 			<SafeAreaView
-				className="flex-1 items-center justify-center"
+				className="flex-1"
 				style={{ backgroundColor: themeColors.background }}
 			>
-				<ActivityIndicator size="large" color={themeColors.primary} />
+				<View className="flex-1 px-5 pt-4">
+					<View
+						className="h-10 w-48 rounded-lg mb-6"
+						style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+					/>
+					<View
+						className="flex-1 rounded-2xl mb-6"
+						style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+					/>
+					<View className="flex-row items-center mb-4">
+						<View
+							className="w-14 h-14 rounded-full mr-3"
+							style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+						/>
+						<View className="flex-1">
+							<View
+								className="h-4 w-32 rounded mb-2"
+								style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+							/>
+							<View
+								className="h-3 w-24 rounded"
+								style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+							/>
+						</View>
+					</View>
+					<View
+						className="h-24 rounded-2xl mb-4"
+						style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+					/>
+				</View>
 			</SafeAreaView>
 		);
 	}

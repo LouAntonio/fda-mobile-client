@@ -28,6 +28,9 @@ import { useAuthStore } from '../../store/authStore';
 import { ProfileHeader } from '../../components/profile/ProfileHeader';
 import { StatCard } from '../../components/profile/StatCard';
 import { TripCard, TripItem } from '../../components/profile/TripCard';
+import { ProfileHeaderSkeleton } from '../../components/skeletons/ProfileHeaderSkeleton';
+import { StatCardGridSkeleton } from '../../components/skeletons/StatCardSkeleton';
+import { TripCardSkeleton } from '../../components/skeletons/TripCardSkeleton';
 import { fetchProfile } from '../../api/profile';
 import { fetchProfileStats, type ProfileStats } from '../../api/stats';
 import { useTrips } from '../../hooks/useTrips';
@@ -216,6 +219,18 @@ export default function ProfileScreen() {
 								Tentar novamente
 							</Text>
 						</TouchableOpacity>
+					</View>
+				) : isLoading ? (
+					<View className="mt-5">
+						<ProfileHeaderSkeleton />
+						<View className="mt-6">
+							<StatCardGridSkeleton />
+						</View>
+						<View className="mt-6">
+							<TripCardSkeleton />
+							<TripCardSkeleton />
+							<TripCardSkeleton />
+						</View>
 					</View>
 				) : (
 					<>

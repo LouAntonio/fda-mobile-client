@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { TripDetailSkeleton } from '../../components/skeletons/TripDetailSkeleton';
 import { useTrip, useTripEvents, useOpenDispute } from '../../hooks/useTrips';
 import MapView from '../../components/MapView';
 import type { MainStackParamList } from '../../types/navigation';
@@ -55,8 +56,8 @@ export default function TripDetailScreen() {
 
 	if (isLoading) {
 		return (
-			<SafeAreaView className="flex-1 items-center justify-center" style={{ backgroundColor: themeColors.background }}>
-				<ActivityIndicator size="large" color={themeColors.primary} />
+			<SafeAreaView className="flex-1" style={{ backgroundColor: themeColors.background }}>
+				<TripDetailSkeleton />
 			</SafeAreaView>
 		);
 	}

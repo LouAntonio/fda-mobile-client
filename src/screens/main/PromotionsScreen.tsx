@@ -3,9 +3,9 @@ import {
 	View,
 	Text,
 	ScrollView,
+	RefreshControl,
 	StyleSheet,
 	TouchableOpacity,
-	ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useQuery } from '@tanstack/react-query';
 import { fetchActivePromotions, type Promotion } from '../../api/promotions';
+import { PromotionSkeleton } from '../../components/skeletons/PromotionSkeleton';
 
 function formatDiscount(promo: Promotion): string {
 	if (promo.discountType === 'PERCENTAGE') {
@@ -45,7 +46,7 @@ export default function PromotionsScreen() {
 		'all' | 'ride' | 'delivery'
 	>('all');
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, refetch, isRefetching } = useQuery({
 		queryKey: ['promotions', 'active'],
 		queryFn: fetchActivePromotions,
 	});
@@ -105,8 +106,10 @@ export default function PromotionsScreen() {
 					</Text>
 					<View style={styles.placeholder} />
 				</View>
-				<View style={styles.loadingContainer}>
-					<ActivityIndicator size="large" color={themeColors.primary} />
+				<View className="px-5 pt-4">
+					<PromotionSkeleton isDark={isDark} />
+					<PromotionSkeleton isDark={isDark} />
+					<PromotionSkeleton isDark={isDark} />
 				</View>
 			</SafeAreaView>
 		);
@@ -201,6 +204,12 @@ export default function PromotionsScreen() {
 			<ScrollView
 				contentContainerStyle={styles.scrollContent}
 				showsVerticalScrollIndicator={false}
+				refreshControl={
+					<RefreshControl
+						refreshing={isRefetching}
+						onRefresh={refetch}
+					/>
+				}
 			>
 				<Text
 					style={[styles.sectionTitle, { color: themeColors.text }]}
@@ -431,11 +440,6 @@ const styles = StyleSheet.create({
 	},
 	placeholder: {
 		width: 40,
-	},
-	loadingContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 	scrollContent: {
 		paddingHorizontal: 20,

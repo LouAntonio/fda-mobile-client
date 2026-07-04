@@ -21,6 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useTrips } from '../../hooks/useTrips';
 import type { TripStatus, ServiceType } from '../../types/api';
+import { TripCardSkeleton } from '../../components/skeletons/TripCardSkeleton';
 
 export default function HistoryScreen() {
 	const navigation = useNavigation<any>();
@@ -165,8 +166,12 @@ export default function HistoryScreen() {
 				}
 			>
 				{isLoading ? (
-					<View className="items-center pt-20">
-						<ActivityIndicator size="large" color={themeColors.primary} />
+					<View className="px-5 pt-4">
+						<TripCardSkeleton />
+						<TripCardSkeleton />
+						<TripCardSkeleton />
+						<TripCardSkeleton />
+						<TripCardSkeleton />
 					</View>
 				) : allTrips.length === 0 ? (
 					<Animated.View

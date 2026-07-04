@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
 	View,
 	Text,
@@ -11,6 +11,7 @@ import {
 	Keyboard,
 	TouchableWithoutFeedback,
 	ActivityIndicator,
+	RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +19,7 @@ import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useAddresses } from '../../hooks/useAddresses';
+import { AddressListSkeleton } from '../../components/skeletons/AddressSkeleton';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import type { AddressLabel } from '../../types/api';
@@ -34,12 +36,20 @@ export default function AddressesScreen() {
 	const {
 		addresses,
 		isLoading,
+		refetch,
 		createAddress,
 		isCreating,
 		deleteAddress,
 	} = useAddresses();
 
+	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [showAddModal, setShowAddModal] = useState(false);
+
+	const handleRefresh = useCallback(async () => {
+		setIsRefreshing(true);
+		await refetch();
+		setIsRefreshing(false);
+	}, [refetch]);
 	const [newLabel, setNewLabel] = useState('');
 	const [newAddress, setNewAddress] = useState('');
 	const [selectedLabel, setSelectedLabel] = useState<AddressLabel>('OTHER');
@@ -114,13 +124,17 @@ export default function AddressesScreen() {
 			</View>
 
 			{isLoading ? (
-				<View className="flex-1 items-center justify-center">
-					<ActivityIndicator size="large" color={themeColors.primary} />
-				</View>
+				<AddressListSkeleton />
 			) : (
 				<ScrollView
 					contentContainerClassName="px-5 pb-10 pt-5"
 					showsVerticalScrollIndicator={false}
+					refreshControl={
+						<RefreshControl
+							refreshing={isRefreshing}
+							onRefresh={handleRefresh}
+						/>
+					}
 				>
 					{addresses.length === 0 ? (
 						<View className="items-center py-20">
