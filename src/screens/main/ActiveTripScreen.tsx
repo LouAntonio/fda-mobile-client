@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
 	View,
 	Text,
@@ -22,8 +22,15 @@ import { useThemeColors } from '../../hooks/useThemeColors';
 import { useCurrentLocation } from '../../hooks/useCurrentLocation';
 import { useTrip, useCancelTrip } from '../../hooks/useTrips';
 import { useActiveTripSocket } from '../../hooks/useActiveTripSocket';
+import { useMapRoute } from '../../hooks/useMapRoute';
 import MapView from '../../components/MapView';
 import type { MainStackParamList } from '../../types/navigation';
+
+function parseWktPoint(wkt: string): { lat: number; lng: number } | null {
+	const match = wkt.match(/POINT\s*\(\s*([\d.-]+)\s+([\d.-]+)\s*\)/i);
+	if (!match) return null;
+	return { lng: parseFloat(match[1]), lat: parseFloat(match[2]) };
+}
 
 const STATUS_LABELS: Record<string, { label: string; icon: string; color: string }> = {
 	REQUESTED: { label: 'Procurando motorista...', icon: 'search', color: '#F59E0B' },
@@ -47,6 +54,19 @@ export default function ActiveTripScreen() {
 	const cancelMutation = useCancelTrip();
 	const { driverLocation } = useActiveTripSocket({ tripId, enabled: true });
 	const { location: currentLocation } = useCurrentLocation();
+	const { route: mapRoute, fetchRoute } = useMapRoute();
+
+	useEffect(() => {
+		if (!trip?.pickupCoords || !trip?.dropoffCoords) return;
+		const pickup = parseWktPoint(trip.pickupCoords);
+		const dropoff = parseWktPoint(trip.dropoffCoords);
+		if (pickup && dropoff) {
+			fetchRoute(
+				[pickup.lng, pickup.lat],
+				[dropoff.lng, dropoff.lat],
+			);
+		}
+	}, [trip?.pickupCoords, trip?.dropoffCoords]);
 
 	const statusInfo = trip
 		? STATUS_LABELS[trip.status] ?? STATUS_LABELS.REQUESTED
@@ -71,6 +91,13 @@ export default function ActiveTripScreen() {
 			title: 'Minha posição',
 		});
 	}
+
+	const routeCoords = mapRoute
+		? mapRoute.geometry.coordinates.map(([lng, lat]) => ({
+				latitude: lat,
+				longitude: lng,
+			}))
+		: [];
 
 	const handleCancelPress = () => {
 		setShowCancelInput(true);
@@ -165,6 +192,7 @@ export default function ActiveTripScreen() {
 						longitudeDelta: 0.02,
 					}}
 					markers={markers}
+					routeCoords={routeCoords}
 				/>
 			</View>
 
