@@ -1,10 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-	View,
-	Text,
-	ScrollView,
-	TouchableOpacity,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, {
@@ -29,7 +24,10 @@ export default function PaymentMethodsScreen() {
 		enabled: !userFromStore?.hasMulticaixa,
 	});
 
-	const hasMulticaixa = userFromStore?.hasMulticaixa ?? profileData?.user?.hasMulticaixa ?? false;
+	const hasMulticaixa =
+		userFromStore?.hasMulticaixa ??
+		profileData?.user?.hasMulticaixa ??
+		false;
 
 	const methods = useMemo(() => {
 		const list: Array<{
@@ -330,8 +328,6 @@ export default function PaymentMethodsScreen() {
 					</Text>
 				</Animated.View>
 			</ScrollView>
-
-
 		</SafeAreaView>
 	);
 }

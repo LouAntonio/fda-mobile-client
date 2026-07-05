@@ -288,7 +288,9 @@ export default function InfoScreen() {
 								key={social.label}
 								style={styles.socialItem}
 								activeOpacity={0.6}
-								onPress={() => openURL(SOCIAL_URLS[social.label])}
+								onPress={() =>
+									openURL(SOCIAL_URLS[social.label])
+								}
 							>
 								<Ionicons
 									name={social.icon as any}

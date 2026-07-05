@@ -28,7 +28,12 @@ export default function TripRequestScreen() {
 	const navigation = useNavigation<any>();
 	const route = useRoute<RouteProp<MainStackParamList, 'TripRequest'>>();
 	const { themeColors, isDark } = useThemeColors();
-	const { serviceType, pickupLat, pickupLng, pickupAddress: initialPickup } = route.params;
+	const {
+		serviceType,
+		pickupLat,
+		pickupLng,
+		pickupAddress: initialPickup,
+	} = route.params;
 
 	const { location: currentLocation } = useCurrentLocation();
 
@@ -46,31 +51,47 @@ export default function TripRequestScreen() {
 	const [dropoffReference, setDropoffReference] = useState('');
 
 	const keyboardHeight = useKeyboardHeight();
-	const { query: dropoffQuery, setQuery: setDropoffQuery, results, isSearching, clearResults } = useMapSearch();
+	const {
+		query: dropoffQuery,
+		setQuery: setDropoffQuery,
+		results,
+		isSearching,
+		clearResults,
+	} = useMapSearch();
 	const { route: mapRoute, fetchRoute } = useMapRoute();
 	const estimateMutation = useEstimateTrip();
 	const requestMutation = useRequestTrip();
 
 	const userLat = pickupLat ?? currentLocation?.latitude ?? -8.8399;
 	const userLng = pickupLng ?? currentLocation?.longitude ?? 13.2344;
-	const userAddress = initialPickup ?? currentLocation?.address ?? 'Local atual';
+	const userAddress =
+		initialPickup ?? currentLocation?.address ?? 'Local atual';
 
 	const estimate = estimateMutation.data;
 
 	useEffect(() => {
 		if (selectedDropoff) {
-			fetchRoute([userLng, userLat], [selectedDropoff.longitude, selectedDropoff.latitude]);
+			fetchRoute(
+				[userLng, userLat],
+				[selectedDropoff.longitude, selectedDropoff.latitude],
+			);
 			estimateMutation.mutate({
 				serviceType,
 				pickupCoords: { lat: userLat, lng: userLng },
-				dropoffCoords: { lat: selectedDropoff.latitude, lng: selectedDropoff.longitude },
+				dropoffCoords: {
+					lat: selectedDropoff.latitude,
+					lng: selectedDropoff.longitude,
+				},
 				vehicleType: 'MOTO',
 			});
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedDropoff]);
 
-	const handleSearchResult = (item: { center: [number, number]; place_name: string }) => {
+	const handleSearchResult = (item: {
+		center: [number, number];
+		place_name: string;
+	}) => {
 		setSelectedDropoff({
 			latitude: item.center[1],
 			longitude: item.center[0],
@@ -97,7 +118,11 @@ export default function TripRequestScreen() {
 				code: couponCode.trim(),
 				tripAmount: estimate.totalPrice,
 			});
-			if (result.valid && result.discountAmount && result.discountAmount > 0) {
+			if (
+				result.valid &&
+				result.discountAmount &&
+				result.discountAmount > 0
+			) {
 				setCouponValid(true);
 				setCouponDiscount(result.discountAmount);
 				setAppliedCoupon(couponCode.trim());
@@ -105,7 +130,10 @@ export default function TripRequestScreen() {
 				setCouponValid(false);
 				setCouponDiscount(null);
 				setAppliedCoupon('');
-				Alert.alert('Cupão inválido', result.reason || 'Este cupão não é válido');
+				Alert.alert(
+					'Cupão inválido',
+					result.reason || 'Este cupão não é válido',
+				);
 			}
 		} catch {
 			setCouponValid(false);
@@ -134,7 +162,10 @@ export default function TripRequestScreen() {
 			{
 				serviceType,
 				pickupCoords: { lat: userLat, lng: userLng },
-				dropoffCoords: { lat: selectedDropoff.latitude, lng: selectedDropoff.longitude },
+				dropoffCoords: {
+					lat: selectedDropoff.latitude,
+					lng: selectedDropoff.longitude,
+				},
 				pickupAddress: userAddress,
 				dropoffAddress: selectedDropoff.name,
 				pickupReference: pickupReference || undefined,
@@ -154,8 +185,18 @@ export default function TripRequestScreen() {
 	const markers = [];
 	if (selectedDropoff) {
 		markers.push(
-			{ id: 'pickup', latitude: userLat, longitude: userLng, title: 'Origem' },
-			{ id: 'dropoff', latitude: selectedDropoff.latitude, longitude: selectedDropoff.longitude, title: selectedDropoff.name },
+			{
+				id: 'pickup',
+				latitude: userLat,
+				longitude: userLng,
+				title: 'Origem',
+			},
+			{
+				id: 'dropoff',
+				latitude: selectedDropoff.latitude,
+				longitude: selectedDropoff.longitude,
+				title: selectedDropoff.name,
+			},
 		);
 	}
 
@@ -167,7 +208,10 @@ export default function TripRequestScreen() {
 		: [];
 
 	return (
-		<SafeAreaView className="flex-1" style={{ backgroundColor: themeColors.background }}>
+		<SafeAreaView
+			className="flex-1"
+			style={{ backgroundColor: themeColors.background }}
+		>
 			<KeyboardAvoidingView
 				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 				className="flex-1"
@@ -186,11 +230,22 @@ export default function TripRequestScreen() {
 					<TouchableOpacity
 						onPress={() => navigation.goBack()}
 						className="w-10 h-10 items-center justify-center rounded-full"
-						style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }}
+						style={{
+							backgroundColor: isDark
+								? 'rgba(255,255,255,0.15)'
+								: 'rgba(0,0,0,0.1)',
+						}}
 					>
-						<Ionicons name="chevron-back" size={22} color={themeColors.text} />
+						<Ionicons
+							name="chevron-back"
+							size={22}
+							color={themeColors.text}
+						/>
 					</TouchableOpacity>
-					<Text className="flex-1 text-lg font-bold ml-3" style={{ color: themeColors.text }}>
+					<Text
+						className="flex-1 text-lg font-bold ml-3"
+						style={{ color: themeColors.text }}
+					>
 						{serviceType === 'RIDE' ? 'Corrida' : 'Entrega'}
 					</Text>
 				</View>
@@ -229,7 +284,9 @@ export default function TripRequestScreen() {
 					<ScrollView
 						keyboardShouldPersistTaps="handled"
 						showsVerticalScrollIndicator={false}
-						contentContainerStyle={{ paddingBottom: Math.max(keyboardHeight, 24) }}
+						contentContainerStyle={{
+							paddingBottom: Math.max(keyboardHeight, 24),
+						}}
 					>
 						{/* Destination Input */}
 						<View
@@ -239,7 +296,11 @@ export default function TripRequestScreen() {
 								borderColor: isDark ? '#333' : '#E5E7EB',
 							}}
 						>
-							<Ionicons name="location-outline" size={20} color={themeColors.primary} />
+							<Ionicons
+								name="location-outline"
+								size={20}
+								color={themeColors.primary}
+							/>
 							<TextInput
 								className="flex-1 ml-3 text-base font-semibold"
 								style={{ color: themeColors.text }}
@@ -255,7 +316,9 @@ export default function TripRequestScreen() {
 							<View
 								className="mb-3 rounded-2xl overflow-hidden border"
 								style={{
-									backgroundColor: isDark ? '#2A2A2A' : '#FFF',
+									backgroundColor: isDark
+										? '#2A2A2A'
+										: '#FFF',
 									borderColor: isDark ? '#333' : '#E5E7EB',
 								}}
 							>
@@ -263,10 +326,18 @@ export default function TripRequestScreen() {
 									<TouchableOpacity
 										key={item.id}
 										className="flex-row items-center px-4 py-3 border-b"
-										style={{ borderColor: isDark ? '#333' : '#F3F4F6' }}
+										style={{
+											borderColor: isDark
+												? '#333'
+												: '#F3F4F6',
+										}}
 										onPress={() => handleSearchResult(item)}
 									>
-										<Ionicons name="location" size={16} color={themeColors.primary} />
+										<Ionicons
+											name="location"
+											size={16}
+											color={themeColors.primary}
+										/>
 										<Text
 											className="flex-1 ml-3 text-sm font-medium"
 											style={{ color: themeColors.text }}
@@ -284,7 +355,9 @@ export default function TripRequestScreen() {
 							<TextInput
 								className="flex-1 px-4 py-3 rounded-2xl border text-base"
 								style={{
-									backgroundColor: isDark ? '#2A2A2A' : '#F9FAFB',
+									backgroundColor: isDark
+										? '#2A2A2A'
+										: '#F9FAFB',
 									borderColor: isDark ? '#333' : '#E5E7EB',
 									color: themeColors.text,
 								}}
@@ -296,7 +369,9 @@ export default function TripRequestScreen() {
 							<TextInput
 								className="flex-1 px-4 py-3 rounded-2xl border text-base"
 								style={{
-									backgroundColor: isDark ? '#2A2A2A' : '#F9FAFB',
+									backgroundColor: isDark
+										? '#2A2A2A'
+										: '#F9FAFB',
 									borderColor: isDark ? '#333' : '#E5E7EB',
 									color: themeColors.text,
 								}}
@@ -313,12 +388,16 @@ export default function TripRequestScreen() {
 								<TextInput
 									className="px-4 py-3 rounded-2xl border text-base"
 									style={{
-										backgroundColor: isDark ? '#2A2A2A' : '#F9FAFB',
+										backgroundColor: isDark
+											? '#2A2A2A'
+											: '#F9FAFB',
 										borderColor: appliedCoupon
 											? '#10B981'
 											: couponValid === false
 												? '#EF4444'
-												: isDark ? '#333' : '#E5E7EB',
+												: isDark
+													? '#333'
+													: '#E5E7EB',
 										color: themeColors.text,
 									}}
 									placeholder="Cupom de desconto (opcional)"
@@ -335,7 +414,9 @@ export default function TripRequestScreen() {
 								/>
 								{couponDiscount != null && couponValid && (
 									<Text className="text-xs font-bold text-green-500 mt-1 ml-1">
-										-{couponDiscount.toLocaleString('pt-AO')} Kz
+										-
+										{couponDiscount.toLocaleString('pt-AO')}{' '}
+										Kz
 									</Text>
 								)}
 							</View>
@@ -345,20 +426,33 @@ export default function TripRequestScreen() {
 									className="py-3 px-4 rounded-2xl items-center border border-red-500/20 bg-red-500/10"
 									activeOpacity={0.7}
 								>
-									<Ionicons name="close" size={20} color="#EF4444" />
+									<Ionicons
+										name="close"
+										size={20}
+										color="#EF4444"
+									/>
 								</TouchableOpacity>
 							) : (
 								<TouchableOpacity
 									onPress={handleValidateCoupon}
 									className="py-3 px-4 rounded-2xl items-center bg-primary"
-									disabled={!couponCode.trim() || validatingCoupon}
+									disabled={
+										!couponCode.trim() || validatingCoupon
+									}
 									activeOpacity={0.7}
-									style={{ opacity: !couponCode.trim() ? 0.5 : 1 }}
+									style={{
+										opacity: !couponCode.trim() ? 0.5 : 1,
+									}}
 								>
 									{validatingCoupon ? (
-										<ActivityIndicator size="small" color="#000" />
+										<ActivityIndicator
+											size="small"
+											color="#000"
+										/>
 									) : (
-										<Text className="text-sm font-black text-secondary">Validar</Text>
+										<Text className="text-sm font-black text-secondary">
+											Validar
+										</Text>
 									)}
 								</TouchableOpacity>
 							)}
@@ -368,26 +462,46 @@ export default function TripRequestScreen() {
 						<View className="flex-row items-center gap-3">
 							{estimateMutation.isPending ? (
 								<View className="flex-row items-center gap-2">
-									<ActivityIndicator size="small" color={themeColors.primary} />
-									<Text className="text-sm text-gray-500">Calculando...</Text>
+									<ActivityIndicator
+										size="small"
+										color={themeColors.primary}
+									/>
+									<Text className="text-sm text-gray-500">
+										Calculando...
+									</Text>
 								</View>
 							) : estimate ? (
 								<View className="flex-row items-center gap-3 flex-1">
 									<View className="flex-row items-center gap-2">
 										<Text className="text-sm text-gray-500">
-											{estimate.estimatedDistanceKm.toFixed(1)} km
+											{estimate.estimatedDistanceKm.toFixed(
+												1,
+											)}{' '}
+											km
 										</Text>
-										<Text className="text-sm text-gray-500">·</Text>
+										<Text className="text-sm text-gray-500">
+											·
+										</Text>
 										<Text className="text-sm text-gray-500">
 											{estimate.estimatedDurationMin} min
 										</Text>
 									</View>
-									<Text className="text-lg font-black" style={{ color: themeColors.primary }}>
-										{estimate.totalPrice.toLocaleString('pt-AO')} Kz
+									<Text
+										className="text-lg font-black"
+										style={{ color: themeColors.primary }}
+									>
+										{estimate.totalPrice.toLocaleString(
+											'pt-AO',
+										)}{' '}
+										Kz
 									</Text>
 									{estimate.discountAmount > 0 && (
 										<Text className="text-xs text-green-500">
-											-{estimate.discountAmount.toLocaleString('pt-AO')} Kz
+											-
+											{estimate.discountAmount.toLocaleString(
+												'pt-AO',
+											)}{' '}
+											Kz
 										</Text>
 									)}
 								</View>
@@ -400,7 +514,10 @@ export default function TripRequestScreen() {
 									opacity: selectedDropoff ? 1 : 0.5,
 								}}
 								onPress={handleRequest}
-								disabled={!selectedDropoff || requestMutation.isPending}
+								disabled={
+									!selectedDropoff ||
+									requestMutation.isPending
+								}
 							>
 								{requestMutation.isPending ? (
 									<ActivityIndicator color="#000" />

@@ -39,7 +39,12 @@ export default function HomeScreen() {
 		id: addr.id,
 		title: addr.customLabel || addr.label,
 		address: addr.address,
-		icon: addr.label === 'HOME' ? 'home' : addr.label === 'WORK' ? 'briefcase' : 'location',
+		icon:
+			addr.label === 'HOME'
+				? 'home'
+				: addr.label === 'WORK'
+					? 'briefcase'
+					: 'location',
 		latitude: addr.lat,
 		longitude: addr.lng,
 	}));
@@ -97,225 +102,217 @@ export default function HomeScreen() {
 			</View>
 
 			<ScrollView
-					contentContainerStyle={styles.scrollContent}
-					showsVerticalScrollIndicator={false}
+				contentContainerStyle={styles.scrollContent}
+				showsVerticalScrollIndicator={false}
+			>
+				<Animated.View
+					entering={FadeInDown.duration(800).delay(100)}
+					style={styles.welcomeSection}
 				>
-					<Animated.View
-						entering={FadeInDown.duration(800).delay(100)}
-						style={styles.welcomeSection}
+					<Text
+						style={[
+							styles.welcomeText,
+							{ color: themeColors.secondary },
+						]}
 					>
-						<Text
-							style={[
-								styles.welcomeText,
-								{ color: themeColors.secondary },
-							]}
+						Olá, {user?.name?.split(' ')[0] || 'Usuário'}
+					</Text>
+					<Text
+						style={[styles.mainTitle, { color: themeColors.text }]}
+					>
+						Para onde vamos?
+					</Text>
+				</Animated.View>
+
+				<View style={styles.cardsContainer}>
+					<Animated.View
+						entering={FadeInRight.duration(800).delay(300)}
+					>
+						<TouchableOpacity
+							style={[styles.serviceCard, cardBgStyle]}
+							activeOpacity={0.8}
+							onPress={() =>
+								navigation.navigate('TripRequest', {
+									serviceType: 'RIDE',
+									pickupLat: currentLocation?.latitude,
+									pickupLng: currentLocation?.longitude,
+									pickupAddress: currentLocation?.address,
+								})
+							}
 						>
-							Olá, {user?.name?.split(' ')[0] || 'Usuário'}
-						</Text>
+							<View
+								style={[
+									styles.iconCircle,
+									{ backgroundColor: themeColors.primary },
+								]}
+							>
+								<MaterialCommunityIcons
+									name="moped"
+									size={36}
+									color="#000"
+								/>
+							</View>
+							<View>
+								<Text
+									style={[
+										styles.cardTitle,
+										{ color: themeColors.text },
+									]}
+								>
+									Corrida
+								</Text>
+								<Text
+									style={[
+										styles.cardDesc,
+										{ color: themeColors.secondary },
+									]}
+								>
+									Viagens rápidas
+								</Text>
+							</View>
+							<View
+								style={[
+									styles.cardBadge,
+									{ backgroundColor: themeColors.primary },
+								]}
+							>
+								<Ionicons
+									name="arrow-forward"
+									size={14}
+									color="#000"
+								/>
+							</View>
+						</TouchableOpacity>
+					</Animated.View>
+
+					<Animated.View
+						entering={FadeInRight.duration(800).delay(500)}
+					>
+						<TouchableOpacity
+							style={[styles.serviceCard, cardBgStyle]}
+							activeOpacity={0.8}
+							onPress={() =>
+								navigation.navigate('TripRequest', {
+									serviceType: 'DELIVERY',
+									pickupLat: currentLocation?.latitude,
+									pickupLng: currentLocation?.longitude,
+									pickupAddress: currentLocation?.address,
+								})
+							}
+						>
+							<View
+								style={[
+									styles.iconCircle,
+									{ backgroundColor: themeColors.primary },
+								]}
+							>
+								<Ionicons name="cube" size={32} color="#000" />
+							</View>
+							<View>
+								<Text
+									style={[
+										styles.cardTitle,
+										{ color: themeColors.text },
+									]}
+								>
+									Entrega
+								</Text>
+								<Text
+									style={[
+										styles.cardDesc,
+										{ color: themeColors.secondary },
+									]}
+								>
+									Mande encomendas
+								</Text>
+							</View>
+							<View
+								style={[
+									styles.cardBadge,
+									{ backgroundColor: themeColors.primary },
+								]}
+							>
+								<Ionicons
+									name="arrow-forward"
+									size={14}
+									color="#000"
+								/>
+							</View>
+						</TouchableOpacity>
+					</Animated.View>
+				</View>
+
+				<Animated.View
+					entering={FadeInDown.duration(800).delay(700)}
+					style={styles.recentContainer}
+				>
+					<View style={styles.sectionHeader}>
 						<Text
 							style={[
-								styles.mainTitle,
+								styles.sectionTitle,
 								{ color: themeColors.text },
 							]}
 						>
-							Para onde vamos?
+							Locais recentes
 						</Text>
-
-					</Animated.View>
-
-					<View style={styles.cardsContainer}>
-						<Animated.View
-							entering={FadeInRight.duration(800).delay(300)}
-						>
-							<TouchableOpacity
-								style={[styles.serviceCard, cardBgStyle]}
-								activeOpacity={0.8}
-								onPress={() =>
-									navigation.navigate('TripRequest', {
-										serviceType: 'RIDE',
-										pickupLat: currentLocation?.latitude,
-										pickupLng: currentLocation?.longitude,
-										pickupAddress: currentLocation?.address,
-									})
-								}
-							>
-								<View
-									style={[
-										styles.iconCircle,
-										{ backgroundColor: themeColors.primary },
-									]}
-								>
-									<MaterialCommunityIcons
-										name="moped"
-										size={36}
-										color="#000"
-									/>
-								</View>
-								<View>
-									<Text
-										style={[
-											styles.cardTitle,
-											{ color: themeColors.text },
-										]}
-									>
-										Corrida
-									</Text>
-									<Text
-										style={[
-											styles.cardDesc,
-											{ color: themeColors.secondary },
-										]}
-									>
-										Viagens rápidas
-									</Text>
-								</View>
-								<View
-									style={[
-										styles.cardBadge,
-										{ backgroundColor: themeColors.primary },
-									]}
-								>
-									<Ionicons
-										name="arrow-forward"
-										size={14}
-										color="#000"
-									/>
-								</View>
-							</TouchableOpacity>
-						</Animated.View>
-
-						<Animated.View
-							entering={FadeInRight.duration(800).delay(500)}
-						>
-							<TouchableOpacity
-								style={[styles.serviceCard, cardBgStyle]}
-								activeOpacity={0.8}
-								onPress={() =>
-									navigation.navigate('TripRequest', {
-										serviceType: 'DELIVERY',
-										pickupLat: currentLocation?.latitude,
-										pickupLng: currentLocation?.longitude,
-										pickupAddress: currentLocation?.address,
-									})
-								}
-							>
-								<View
-									style={[
-										styles.iconCircle,
-										{ backgroundColor: themeColors.primary },
-									]}
-								>
-									<Ionicons
-										name="cube"
-										size={32}
-										color="#000"
-									/>
-								</View>
-								<View>
-									<Text
-										style={[
-											styles.cardTitle,
-											{ color: themeColors.text },
-										]}
-									>
-										Entrega
-									</Text>
-									<Text
-										style={[
-											styles.cardDesc,
-											{ color: themeColors.secondary },
-										]}
-									>
-										Mande encomendas
-									</Text>
-								</View>
-								<View
-									style={[
-										styles.cardBadge,
-										{ backgroundColor: themeColors.primary },
-									]}
-								>
-									<Ionicons
-										name="arrow-forward"
-										size={14}
-										color="#000"
-									/>
-								</View>
-							</TouchableOpacity>
-						</Animated.View>
 					</View>
 
-					<Animated.View
-						entering={FadeInDown.duration(800).delay(700)}
-						style={styles.recentContainer}
-					>
-						<View style={styles.sectionHeader}>
-							<Text
+					{recentDestinations.map((item) => (
+						<TouchableOpacity
+							key={item.id}
+							style={styles.recentItem}
+							activeOpacity={0.6}
+							onPress={() =>
+								handleRecentDestination(
+									item.longitude,
+									item.latitude,
+									item.address,
+								)
+							}
+						>
+							<View
 								style={[
-									styles.sectionTitle,
-									{ color: themeColors.text },
+									styles.recentIcon,
+									{
+										backgroundColor:
+											themeColors.border + '30',
+									},
 								]}
 							>
-								Locais recentes
-							</Text>
-						</View>
-
-						{recentDestinations.map((item) => (
-							<TouchableOpacity
-								key={item.id}
-								style={styles.recentItem}
-								activeOpacity={0.6}
-								onPress={() =>
-									handleRecentDestination(
-										item.longitude,
-										item.latitude,
-										item.address,
-									)
-								}
-							>
-								<View
+								<Ionicons
+									name={item.icon as any}
+									size={22}
+									color={themeColors.text}
+								/>
+							</View>
+							<View style={styles.recentInfo}>
+								<Text
 									style={[
-										styles.recentIcon,
-										{
-											backgroundColor:
-												themeColors.border + '30',
-										},
+										styles.recentTitle,
+										{ color: themeColors.text },
 									]}
 								>
-									<Ionicons
-										name={item.icon as any}
-										size={22}
-										color={themeColors.text}
-									/>
-								</View>
-								<View style={styles.recentInfo}>
-									<Text
-										style={[
-											styles.recentTitle,
-											{ color: themeColors.text },
-										]}
-									>
-										{item.title}
-									</Text>
-									<Text
-										style={[
-											styles.recentAddress,
-											{ color: themeColors.secondary },
-										]}
-										numberOfLines={1}
-									>
-										{item.address}
-									</Text>
-								</View>
-								<Ionicons
-									name="chevron-forward"
-									size={20}
-									color={themeColors.border}
-								/>
-							</TouchableOpacity>
-						))}
-					</Animated.View>
-				</ScrollView>
+									{item.title}
+								</Text>
+								<Text
+									style={[
+										styles.recentAddress,
+										{ color: themeColors.secondary },
+									]}
+									numberOfLines={1}
+								>
+									{item.address}
+								</Text>
+							</View>
+							<Ionicons
+								name="chevron-forward"
+								size={20}
+								color={themeColors.border}
+							/>
+						</TouchableOpacity>
+					))}
+				</Animated.View>
+			</ScrollView>
 		</SafeAreaView>
 	);
 }
@@ -461,5 +458,4 @@ const styles = StyleSheet.create({
 		fontWeight: '400',
 		opacity: 0.6,
 	},
-
 });

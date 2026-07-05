@@ -63,7 +63,9 @@ export default function AddressesScreen() {
 
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [showAddModal, setShowAddModal] = useState(false);
-	const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
+	const [editingAddress, setEditingAddress] = useState<UserAddress | null>(
+		null,
+	);
 
 	const handleRefresh = useCallback(async () => {
 		setIsRefreshing(true);
@@ -189,11 +191,11 @@ export default function AddressesScreen() {
 					Endereços
 				</Text>
 				<TouchableOpacity
-								onPress={() => {
-									resetModalState();
-									setShowAddModal(true);
-								}}
-								className="w-10 h-10 items-center justify-center rounded-full bg-primary/10"
+					onPress={() => {
+						resetModalState();
+						setShowAddModal(true);
+					}}
+					className="w-10 h-10 items-center justify-center rounded-full bg-primary/10"
 					activeOpacity={0.7}
 				>
 					<Ionicons
@@ -245,9 +247,9 @@ export default function AddressesScreen() {
 							return (
 								<Animated.View
 									key={item.id}
-									entering={FadeInRight.duration(
-										500,
-									).delay(index * 80)}
+									entering={FadeInRight.duration(500).delay(
+										index * 80,
+									)}
 								>
 									<TouchableOpacity
 										className="flex-row bg-white dark:bg-soft-black rounded-2xl mb-3 overflow-hidden active:opacity-70"
@@ -261,8 +263,7 @@ export default function AddressesScreen() {
 											shadowOpacity: 0.05,
 											shadowRadius: 8,
 											borderWidth: 1,
-											borderColor:
-												'rgba(0,0,0,0.04)',
+											borderColor: 'rgba(0,0,0,0.04)',
 										}}
 										activeOpacity={0.7}
 									>
@@ -270,8 +271,7 @@ export default function AddressesScreen() {
 										<View
 											style={{
 												width: 4,
-												backgroundColor:
-													accentColor,
+												backgroundColor: accentColor,
 											}}
 										/>
 
@@ -310,9 +310,7 @@ export default function AddressesScreen() {
 												</Text>
 											</View>
 											<TouchableOpacity
-												onPress={() =>
-													handleEdit(item)
-												}
+												onPress={() => handleEdit(item)}
 												className="p-2.5 rounded-full bg-blue-50 dark:bg-blue-500/10 mr-2"
 												activeOpacity={0.6}
 											>
@@ -392,7 +390,9 @@ export default function AddressesScreen() {
 								<Text
 									className={`text-2xl font-black ${isDark ? 'text-white' : 'text-gray-900'}`}
 								>
-									{editingAddress ? 'Editar Endereço' : 'Novo Endereço'}
+									{editingAddress
+										? 'Editar Endereço'
+										: 'Novo Endereço'}
 								</Text>
 								<TouchableOpacity
 									onPress={resetModalState}
@@ -414,15 +414,12 @@ export default function AddressesScreen() {
 								{LABEL_OPTIONS.map((opt) => {
 									const isActive =
 										selectedLabel === opt.value;
-									const accentColor =
-										LABEL_COLORS[opt.value];
+									const accentColor = LABEL_COLORS[opt.value];
 									return (
 										<TouchableOpacity
 											key={opt.value}
 											onPress={() =>
-												setSelectedLabel(
-													opt.value,
-												)
+												setSelectedLabel(opt.value)
 											}
 											className={`flex-1 flex-row items-center justify-center py-3 px-2 rounded-xl gap-1 ${
 												isActive
@@ -457,8 +454,11 @@ export default function AddressesScreen() {
 							</View>
 
 							{/* Map Picker */}
-							<View className="h-44 rounded-2xl overflow-hidden mb-4 border"
-								style={{ borderColor: isDark ? '#333' : '#E5E7EB' }}
+							<View
+								className="h-44 rounded-2xl overflow-hidden mb-4 border"
+								style={{
+									borderColor: isDark ? '#333' : '#E5E7EB',
+								}}
 							>
 								<MapView
 									style={{ flex: 1 }}
@@ -470,12 +470,10 @@ export default function AddressesScreen() {
 									}}
 									onPress={(e) => {
 										setSelectedLat(
-											e.nativeEvent.coordinate
-												.latitude,
+											e.nativeEvent.coordinate.latitude,
 										);
 										setSelectedLng(
-											e.nativeEvent.coordinate
-												.longitude,
+											e.nativeEvent.coordinate.longitude,
 										);
 									}}
 									mapType="standard"

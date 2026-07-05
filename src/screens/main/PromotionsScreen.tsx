@@ -68,9 +68,7 @@ export default function PromotionsScreen() {
 
 	const filteredPromos = promotions.filter((p) => {
 		if (activeFilter === 'all') return true;
-		return p.discountType === 'PERCENTAGE'
-			? activeFilter === 'ride'
-			: true;
+		return p.discountType === 'PERCENTAGE' ? activeFilter === 'ride' : true;
 	});
 
 	const activePromos = filteredPromos.filter((p) => !isExpired(p));
@@ -312,7 +310,8 @@ export default function PromotionsScreen() {
 												},
 											]}
 										>
-											{promo.description ?? 'Aproveita esta promoção'}
+											{promo.description ??
+												'Aproveita esta promoção'}
 										</Text>
 									</View>
 								</View>

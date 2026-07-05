@@ -14,7 +14,9 @@ export interface CouponValidationResult {
 	reason?: string;
 }
 
-export async function validateCoupon(payload: ValidateCouponPayload): Promise<CouponValidationResult> {
+export async function validateCoupon(
+	payload: ValidateCouponPayload,
+): Promise<CouponValidationResult> {
 	const { data } = await api.post('/coupons/validate', payload);
 	return data as CouponValidationResult;
 }

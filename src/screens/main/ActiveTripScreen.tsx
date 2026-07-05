@@ -32,13 +32,36 @@ function parseWktPoint(wkt: string): { lat: number; lng: number } | null {
 	return { lng: parseFloat(match[1]), lat: parseFloat(match[2]) };
 }
 
-const STATUS_LABELS: Record<string, { label: string; icon: string; color: string }> = {
-	REQUESTED: { label: 'Procurando motorista...', icon: 'search', color: '#F59E0B' },
-	ACCEPTED: { label: 'Motorista a caminho', icon: 'person', color: '#3B82F6' },
-	PICKUP_IN_PROGRESS: { label: 'Motorista chegou', icon: 'location', color: '#3B82F6' },
+const STATUS_LABELS: Record<
+	string,
+	{ label: string; icon: string; color: string }
+> = {
+	REQUESTED: {
+		label: 'Procurando motorista...',
+		icon: 'search',
+		color: '#F59E0B',
+	},
+	ACCEPTED: {
+		label: 'Motorista a caminho',
+		icon: 'person',
+		color: '#3B82F6',
+	},
+	PICKUP_IN_PROGRESS: {
+		label: 'Motorista chegou',
+		icon: 'location',
+		color: '#3B82F6',
+	},
 	STARTED: { label: 'Em andamento', icon: 'navigate', color: '#3B82F6' },
-	COMPLETED: { label: 'Viagem concluída', icon: 'checkmark-circle', color: '#10B981' },
-	CANCELLED: { label: 'Viagem cancelada', icon: 'close-circle', color: '#ED1C24' },
+	COMPLETED: {
+		label: 'Viagem concluída',
+		icon: 'checkmark-circle',
+		color: '#10B981',
+	},
+	CANCELLED: {
+		label: 'Viagem cancelada',
+		icon: 'close-circle',
+		color: '#ED1C24',
+	},
 };
 
 export default function ActiveTripScreen() {
@@ -61,15 +84,12 @@ export default function ActiveTripScreen() {
 		const pickup = parseWktPoint(trip.pickupCoords);
 		const dropoff = parseWktPoint(trip.dropoffCoords);
 		if (pickup && dropoff) {
-			fetchRoute(
-				[pickup.lng, pickup.lat],
-				[dropoff.lng, dropoff.lat],
-			);
+			fetchRoute([pickup.lng, pickup.lat], [dropoff.lng, dropoff.lat]);
 		}
 	}, [trip?.pickupCoords, trip?.dropoffCoords]);
 
 	const statusInfo = trip
-		? STATUS_LABELS[trip.status] ?? STATUS_LABELS.REQUESTED
+		? (STATUS_LABELS[trip.status] ?? STATUS_LABELS.REQUESTED)
 		: STATUS_LABELS.REQUESTED;
 	const driver = trip?.driver;
 	const vehicle = driver?.vehicles?.[0];
@@ -123,7 +143,9 @@ export default function ActiveTripScreen() {
 							{
 								onSuccess: () => {
 									setShowCancelInput(false);
-									navigation.replace('TripDetail', { tripId });
+									navigation.replace('TripDetail', {
+										tripId,
+									});
 								},
 							},
 						);
@@ -152,39 +174,59 @@ export default function ActiveTripScreen() {
 				<View className="flex-1 px-5 pt-4">
 					<View
 						className="h-10 w-48 rounded-lg mb-6"
-						style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+						style={{
+							backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
+						}}
 					/>
 					<View
 						className="flex-1 rounded-2xl mb-6"
-						style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+						style={{
+							backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
+						}}
 					/>
 					<View className="flex-row items-center mb-4">
 						<View
 							className="w-14 h-14 rounded-full mr-3"
-							style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+							style={{
+								backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
+							}}
 						/>
 						<View className="flex-1">
 							<View
 								className="h-4 w-32 rounded mb-2"
-								style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+								style={{
+									backgroundColor: isDark
+										? '#2A2A2A'
+										: '#E5E7EB',
+								}}
 							/>
 							<View
 								className="h-3 w-24 rounded"
-								style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+								style={{
+									backgroundColor: isDark
+										? '#2A2A2A'
+										: '#E5E7EB',
+								}}
 							/>
 						</View>
 					</View>
 					<View
 						className="h-24 rounded-2xl mb-4"
-						style={{ backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB' }}
+						style={{
+							backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
+						}}
 					/>
 				</View>
 			</SafeAreaView>
 		);
 	}
 
-	const isTerminal = trip?.status === 'COMPLETED' || trip?.status === 'CANCELLED';
-	const mapCenter = currentLocation ?? { latitude: -8.8399, longitude: 13.2344 };
+	const isTerminal =
+		trip?.status === 'COMPLETED' || trip?.status === 'CANCELLED';
+	const mapCenter = currentLocation ?? {
+		latitude: -8.8399,
+		longitude: 13.2344,
+	};
 
 	return (
 		<SafeAreaView
@@ -284,7 +326,11 @@ export default function ActiveTripScreen() {
 						style={{ borderColor: isDark ? '#333' : '#F3F4F6' }}
 					>
 						<View className="w-12 h-12 rounded-full items-center justify-center bg-primary/20">
-							<Ionicons name="person" size={24} color={themeColors.primary} />
+							<Ionicons
+								name="person"
+								size={24}
+								color={themeColors.primary}
+							/>
 						</View>
 						<View className="flex-1 ml-3">
 							<Text
@@ -295,7 +341,8 @@ export default function ActiveTripScreen() {
 							</Text>
 							{vehicle && (
 								<Text className="text-xs text-gray-500">
-									{vehicle.brand} {vehicle.model} • {vehicle.plateNumber}
+									{vehicle.brand} {vehicle.model} •{' '}
+									{vehicle.plateNumber}
 								</Text>
 							)}
 						</View>
@@ -313,7 +360,9 @@ export default function ActiveTripScreen() {
 						className="flex-row justify-between items-center border-t pt-3"
 						style={{ borderColor: isDark ? '#333' : '#F3F4F6' }}
 					>
-						<Text className="text-sm font-semibold text-gray-500">Total</Text>
+						<Text className="text-sm font-semibold text-gray-500">
+							Total
+						</Text>
 						<Text
 							className="text-xl font-black"
 							style={{ color: themeColors.primary }}
@@ -328,7 +377,9 @@ export default function ActiveTripScreen() {
 						onPress={handleCancelPress}
 						className="mt-4 py-3 rounded-2xl items-center bg-red-500/10 border border-red-500/20"
 					>
-						<Text className="text-base font-bold text-red-500">Cancelar Viagem</Text>
+						<Text className="text-base font-bold text-red-500">
+							Cancelar Viagem
+						</Text>
 					</TouchableOpacity>
 				)}
 
@@ -337,7 +388,9 @@ export default function ActiveTripScreen() {
 						onPress={handleViewDetail}
 						className="mt-4 py-3 rounded-2xl items-center bg-primary"
 					>
-						<Text className="text-base font-bold text-secondary">Ver Detalhes</Text>
+						<Text className="text-base font-bold text-secondary">
+							Ver Detalhes
+						</Text>
 					</TouchableOpacity>
 				)}
 			</Animated.View>
@@ -371,7 +424,9 @@ export default function ActiveTripScreen() {
 							<View
 								className="px-4 py-3 rounded-2xl border mb-4"
 								style={{
-									backgroundColor: isDark ? '#1A1A1A' : '#F9FAFB',
+									backgroundColor: isDark
+										? '#1A1A1A'
+										: '#F9FAFB',
 									borderColor: isDark ? '#333' : '#E5E7EB',
 								}}
 							>
@@ -393,9 +448,15 @@ export default function ActiveTripScreen() {
 										setShowCancelInput(false);
 									}}
 									className="flex-1 py-3 rounded-2xl items-center border"
-									style={{ borderColor: isDark ? '#333' : '#E5E7EB' }}
+									style={{
+										borderColor: isDark
+											? '#333'
+											: '#E5E7EB',
+									}}
 								>
-									<Text className="text-base font-bold text-gray-500">Voltar</Text>
+									<Text className="text-base font-bold text-gray-500">
+										Voltar
+									</Text>
 								</TouchableOpacity>
 								<TouchableOpacity
 									onPress={handleConfirmCancel}
@@ -405,7 +466,9 @@ export default function ActiveTripScreen() {
 									{cancelMutation.isPending ? (
 										<ActivityIndicator color="#FFF" />
 									) : (
-										<Text className="text-base font-bold text-white">Confirmar</Text>
+										<Text className="text-base font-bold text-white">
+											Confirmar
+										</Text>
 									)}
 								</TouchableOpacity>
 							</View>

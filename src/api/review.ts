@@ -8,6 +8,8 @@ export interface CreateReviewPayload {
 	comment?: string;
 }
 
-export async function createReview(payload: CreateReviewPayload): Promise<void> {
+export async function createReview(
+	payload: CreateReviewPayload,
+): Promise<void> {
 	await api.post('/reviews', payload);
 }

@@ -69,12 +69,14 @@ export default function SettingsScreen() {
 		},
 		onError: (err: any) => {
 			const msg =
-				err?.response?.data?.msg || 'Erro ao eliminar conta. Tenta novamente.';
+				err?.response?.data?.msg ||
+				'Erro ao eliminar conta. Tenta novamente.';
 			Alert.alert('Erro', msg);
 		},
 	});
 
-	const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+	const [showChangePasswordModal, setShowChangePasswordModal] =
+		useState(false);
 	const [passwordCurrent, setPasswordCurrent] = useState('');
 	const [passwordNew, setPasswordNew] = useState('');
 	const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -110,7 +112,10 @@ export default function SettingsScreen() {
 			return;
 		}
 		if (passwordNew.length < 6) {
-			Alert.alert('Atenção', 'A nova palavra-passe deve ter pelo menos 6 caracteres');
+			Alert.alert(
+				'Atenção',
+				'A nova palavra-passe deve ter pelo menos 6 caracteres',
+			);
 			return;
 		}
 		passwordMutation.mutate();
@@ -121,13 +126,15 @@ export default function SettingsScreen() {
 	const [emailPassword, setEmailPassword] = useState('');
 
 	const emailMutation = useMutation({
-		mutationFn: () =>
-			changeEmail({ newEmail, password: emailPassword }),
+		mutationFn: () => changeEmail({ newEmail, password: emailPassword }),
 		onSuccess: () => {
 			setShowChangeEmailModal(false);
 			setNewEmail('');
 			setEmailPassword('');
-			Alert.alert('Sucesso', 'Email alterado! Verifica a tua caixa de entrada.');
+			Alert.alert(
+				'Sucesso',
+				'Email alterado! Verifica a tua caixa de entrada.',
+			);
 		},
 		onError: (err: AxiosError<{ msg?: string }>) => {
 			Alert.alert(
@@ -357,7 +364,13 @@ export default function SettingsScreen() {
 								/>
 							</TouchableOpacity>
 						</Animated.View>
-						<View style={{ height: 0.5, backgroundColor: themeColors.border, marginLeft: 74 }} />
+						<View
+							style={{
+								height: 0.5,
+								backgroundColor: themeColors.border,
+								marginLeft: 74,
+							}}
+						/>
 						<Animated.View
 							entering={FadeInRight.duration(400).delay(75)}
 						>
@@ -403,7 +416,13 @@ export default function SettingsScreen() {
 								/>
 							</TouchableOpacity>
 						</Animated.View>
-						<View style={{ height: 0.5, backgroundColor: themeColors.border, marginLeft: 74 }} />
+						<View
+							style={{
+								height: 0.5,
+								backgroundColor: themeColors.border,
+								marginLeft: 74,
+							}}
+						/>
 						<Animated.View
 							entering={FadeInRight.duration(400).delay(100)}
 						>
@@ -494,7 +513,9 @@ export default function SettingsScreen() {
 						className="absolute inset-0 bg-black/60"
 						onPress={() => setShowDeleteModal(false)}
 					/>
-					<Animated.View entering={FadeInDown.duration(300).springify()}>
+					<Animated.View
+						entering={FadeInDown.duration(300).springify()}
+					>
 						<View
 							className="mx-6 rounded-[32px] p-6"
 							style={{
@@ -519,8 +540,8 @@ export default function SettingsScreen() {
 									className="text-sm text-center mt-2"
 									style={{ color: themeColors.text + '99' }}
 								>
-									Esta ação é irreversível. Todos os teus dados
-									serão removidos permanentemente.
+									Esta ação é irreversível. Todos os teus
+									dados serão removidos permanentemente.
 								</Text>
 							</View>
 
@@ -607,7 +628,9 @@ export default function SettingsScreen() {
 								Alterar Palavra-passe
 							</Text>
 							<TouchableOpacity
-								onPress={() => setShowChangePasswordModal(false)}
+								onPress={() =>
+									setShowChangePasswordModal(false)
+								}
 								className="w-8 h-8 items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full"
 							>
 								<Ionicons

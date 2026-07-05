@@ -35,7 +35,10 @@ import { fetchProfileStats, type ProfileStats } from '../../api/stats';
 import { useTrips } from '../../hooks/useTrips';
 import { logoutUser } from '../../services/auth';
 import { updateProfile, updateEmergencyContact } from '../../services/user';
-import { sendPhoneVerification, confirmPhoneVerification } from '../../services/phone';
+import {
+	sendPhoneVerification,
+	confirmPhoneVerification,
+} from '../../services/phone';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 
@@ -58,10 +61,9 @@ export default function ProfileScreen() {
 		queryFn: fetchProfileStats,
 	});
 
-	const {
-		data: tripsData,
-		isLoading: tripsLoading,
-	} = useTrips({ limit: 10 });
+	const { data: tripsData, isLoading: tripsLoading } = useTrips({
+		limit: 10,
+	});
 
 	const updateMutation = useMutation({
 		mutationFn: updateProfile,
@@ -112,7 +114,8 @@ export default function ProfileScreen() {
 		onError: (err: AxiosError<{ msg?: string }>) => {
 			Alert.alert(
 				'Erro',
-				err.response?.data?.msg || 'Erro ao atualizar contacto de emergência.',
+				err.response?.data?.msg ||
+					'Erro ao atualizar contacto de emergência.',
 			);
 		},
 	});
@@ -139,10 +142,16 @@ export default function ProfileScreen() {
 		mutationFn: () => sendPhoneVerification(user!.phoneNumber),
 		onSuccess: () => {
 			setOtpSent(true);
-			Alert.alert('Código Enviado', 'Um código de verificação foi enviado para o teu telefone.');
+			Alert.alert(
+				'Código Enviado',
+				'Um código de verificação foi enviado para o teu telefone.',
+			);
 		},
 		onError: (err: AxiosError<{ msg?: string }>) => {
-			Alert.alert('Erro', err.response?.data?.msg || 'Erro ao enviar código.');
+			Alert.alert(
+				'Erro',
+				err.response?.data?.msg || 'Erro ao enviar código.',
+			);
 		},
 	});
 
@@ -225,9 +234,7 @@ export default function ProfileScreen() {
 	const user = profileQuery.data?.user;
 	const stats: ProfileStats | undefined = statsQuery.data?.stats;
 
-	const trips: TripItem[] = (
-		tripsData?.pages?.[0]?.trips ?? []
-	).map((t) => ({
+	const trips: TripItem[] = (tripsData?.pages?.[0]?.trips ?? []).map((t) => ({
 		...t,
 		totalPrice: Number(t.totalPrice),
 	})) as TripItem[];
@@ -266,11 +273,7 @@ export default function ProfileScreen() {
 					onPress={() => navigation.goBack()}
 					activeOpacity={0.7}
 				>
-					<Ionicons
-						name="chevron-back"
-						size={28}
-						color="#231F20"
-					/>
+					<Ionicons name="chevron-back" size={28} color="#231F20" />
 				</TouchableOpacity>
 				<Text className="text-lg font-bold text-secondary dark:text-off-white">
 					Meu Perfil
@@ -335,9 +338,7 @@ export default function ProfileScreen() {
 								}
 								email={user?.email}
 								image={user?.image}
-								phoneNumberVerified={
-									user?.phoneNumberVerified
-								}
+								phoneNumberVerified={user?.phoneNumberVerified}
 								emailVerified={user?.emailVerified}
 								onEditPress={handleEditPress}
 								onVerifyPhone={
@@ -378,7 +379,9 @@ export default function ProfileScreen() {
 												key={s.id}
 												entering={FadeInUp.duration(
 													500,
-												).delay(200 + Number(s.id) * 60)}
+												).delay(
+													200 + Number(s.id) * 60,
+												)}
 												className="w-1/2"
 											>
 												<StatCard stat={s} />
@@ -426,9 +429,9 @@ export default function ProfileScreen() {
 								trips.map((trip, index) => (
 									<Animated.View
 										key={trip.id}
-										entering={FadeInUp.duration(
-											500,
-										).delay(350 + index * 80)}
+										entering={FadeInUp.duration(500).delay(
+											350 + index * 80,
+										)}
 									>
 										<TripCard
 											trip={trip}
@@ -458,7 +461,8 @@ export default function ProfileScreen() {
 								onPress={handleEmergencyPress}
 								activeOpacity={0.7}
 							>
-								<View className="bg-white dark:bg-soft-black rounded-2xl p-4 flex-row items-center gap-4"
+								<View
+									className="bg-white dark:bg-soft-black rounded-2xl p-4 flex-row items-center gap-4"
 									style={{
 										elevation: 2,
 										shadowColor: '#000',
@@ -730,7 +734,9 @@ export default function ProfileScreen() {
 										<Button
 											title="Confirmar"
 											onPress={handleConfirmOTP}
-											loading={confirmOTPMutation.isPending}
+											loading={
+												confirmOTPMutation.isPending
+											}
 										/>
 									</View>
 									<TouchableOpacity

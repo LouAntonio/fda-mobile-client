@@ -364,10 +364,9 @@ export default function HistoryScreen() {
 												<View
 													className="w-1 h-1 rounded-full"
 													style={{
-														backgroundColor:
-															isDark
-																? '#404040'
-																: '#D1D5DB',
+														backgroundColor: isDark
+															? '#404040'
+															: '#D1D5DB',
 													}}
 												/>
 												<Text
@@ -432,12 +431,11 @@ export default function HistoryScreen() {
 															<Text className="text-xs font-medium text-gray-500 dark:text-gray-400">
 																{item.driver
 																	.user
-																	?.name || ''}
+																	?.name ||
+																	''}
 															</Text>
 														</View>
-														<View
-															className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"
-														/>
+														<View className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
 													</>
 												)}
 												<Text className="text-xs font-medium text-gray-400 dark:text-gray-500">
@@ -526,9 +524,7 @@ export default function HistoryScreen() {
 										<TouchableOpacity
 											key={f}
 											className={`px-4 py-2 rounded-full border ${isActive ? 'border-primary bg-primary' : isDark ? 'border-gray-700 bg-[#1A1A1A]' : 'border-gray-200 bg-white'}`}
-											onPress={() =>
-												setPeriodFilter(f)
-											}
+											onPress={() => setPeriodFilter(f)}
 											activeOpacity={0.7}
 										>
 											<Text

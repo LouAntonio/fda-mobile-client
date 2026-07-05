@@ -1,4 +1,12 @@
-export type UserRole = 'CLIENT' | 'DRIVER' | 'SUPER_ADMIN' | 'OPERATIONS' | 'SUPPORT' | 'VALIDATOR' | 'FINANCE' | 'FLEET_MANAGER';
+export type UserRole =
+	| 'CLIENT'
+	| 'DRIVER'
+	| 'SUPER_ADMIN'
+	| 'OPERATIONS'
+	| 'SUPPORT'
+	| 'VALIDATOR'
+	| 'FINANCE'
+	| 'FLEET_MANAGER';
 
 export type UserStatus = 'ACTIVE' | 'BANNED' | 'DELETED';
 
@@ -6,7 +14,13 @@ export type VehicleType = 'MOTO' | 'CARRO';
 
 export type ServiceType = 'RIDE' | 'DELIVERY';
 
-export type TripStatus = 'REQUESTED' | 'ACCEPTED' | 'PICKUP_IN_PROGRESS' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
+export type TripStatus =
+	| 'REQUESTED'
+	| 'ACCEPTED'
+	| 'PICKUP_IN_PROGRESS'
+	| 'STARTED'
+	| 'COMPLETED'
+	| 'CANCELLED';
 
 export type PaymentMethod = 'CASH' | 'MCX_EXPRESS' | 'UNITEL_MONEY';
 

@@ -44,7 +44,12 @@ function navigateToAuth() {
 	}
 }
 
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+const AUTH_ENDPOINTS = [
+	'/auth/login',
+	'/auth/register',
+	'/auth/refresh',
+	'/auth/logout',
+];
 
 api.interceptors.response.use(
 	(response) => {

@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import {
+	useQuery,
+	useMutation,
+	useQueryClient,
+	useInfiniteQuery,
+} from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import { AxiosError } from 'axios';
 import {
@@ -86,7 +91,9 @@ export function useCancelTrip() {
 		mutationFn: ({ id, reason }: { id: string; reason: string }) =>
 			cancelTrip(id, reason),
 		onSuccess: (data) => {
-			queryClient.invalidateQueries({ queryKey: tripKeys.detail(data.id) });
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(data.id),
+			});
 			queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
 		},
 		onError: (err: AxiosError<{ msg?: string }>) => {
@@ -100,8 +107,11 @@ export function useCancelTrip() {
 
 export function useOpenDispute() {
 	return useMutation({
-		mutationFn: (payload: { tripId: string; reason: string; description: string }) =>
-			openDispute(payload),
+		mutationFn: (payload: {
+			tripId: string;
+			reason: string;
+			description: string;
+		}) => openDispute(payload),
 		onSuccess: () => {
 			Alert.alert('Sucesso', 'Disputa aberta com sucesso');
 		},
