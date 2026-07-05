@@ -101,7 +101,7 @@ export default function TripDetailScreen() {
 		if (pickup && dropoff) {
 			fetchRoute([pickup.lng, pickup.lat], [dropoff.lng, dropoff.lat]);
 		}
-	}, [trip?.pickupCoords, trip?.dropoffCoords]);
+	}, [trip?.pickupCoords, trip?.dropoffCoords, fetchRoute]);
 
 	const markers = useMemo(() => {
 		if (!trip?.pickupCoords || !trip?.dropoffCoords) return [];

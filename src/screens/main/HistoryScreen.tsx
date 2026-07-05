@@ -20,7 +20,7 @@ import DateTimePicker, {
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useTrips } from '../../hooks/useTrips';
-import type { TripStatus, ServiceType } from '../../types/api';
+import type { TripStatus } from '../../types/api';
 import { TripCardSkeleton } from '../../components/skeletons/TripCardSkeleton';
 
 const STATUS_OPTIONS = [

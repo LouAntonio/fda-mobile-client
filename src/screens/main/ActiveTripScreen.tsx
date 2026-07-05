@@ -86,7 +86,7 @@ export default function ActiveTripScreen() {
 		if (pickup && dropoff) {
 			fetchRoute([pickup.lng, pickup.lat], [dropoff.lng, dropoff.lat]);
 		}
-	}, [trip?.pickupCoords, trip?.dropoffCoords]);
+	}, [trip?.pickupCoords, trip?.dropoffCoords, fetchRoute]);
 
 	const statusInfo = trip
 		? (STATUS_LABELS[trip.status] ?? STATUS_LABELS.REQUESTED)

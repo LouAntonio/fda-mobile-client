@@ -279,7 +279,6 @@ export default function SettingsScreen() {
 							icon="notifications"
 							label="Notificações Push"
 							sublabel="Receber alertas de corrida"
-							defaultValue={true}
 							colors={themeColors}
 							iconColor="#FF9500"
 							isLast={false}
@@ -288,7 +287,6 @@ export default function SettingsScreen() {
 							icon="mail"
 							label="Notificações por E-mail"
 							sublabel="Recibos e atualizações"
-							defaultValue={false}
 							colors={themeColors}
 							iconColor="#007AFF"
 							isLast={false}
@@ -297,7 +295,6 @@ export default function SettingsScreen() {
 							icon="volume-high"
 							label="Sons"
 							sublabel="Sons de notificação"
-							defaultValue={true}
 							colors={themeColors}
 							iconColor="#34C759"
 							isLast={true}
@@ -812,7 +809,6 @@ function NotificationToggle({
 	icon,
 	label,
 	sublabel,
-	defaultValue,
 	colors,
 	iconColor,
 	isLast,
@@ -820,7 +816,6 @@ function NotificationToggle({
 	icon: string;
 	label: string;
 	sublabel: string;
-	defaultValue: boolean;
 	colors: Record<string, string>;
 	iconColor: string;
 	isLast: boolean;
