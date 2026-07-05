@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
 	View,
 	Text,
@@ -11,13 +11,23 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useMutation } from '@tanstack/react-query';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { TripDetailSkeleton } from '../../components/skeletons/TripDetailSkeleton';
+import { useAuthStore } from '../../store/authStore';
 import { useTrip, useTripEvents, useOpenDispute } from '../../hooks/useTrips';
+import { useMapRoute } from '../../hooks/useMapRoute';
+import { createReview } from '../../api/review';
 import MapView from '../../components/MapView';
 import type { MainStackParamList } from '../../types/navigation';
 import type { TripEventFromApi } from '../../api/trip';
+
+function parseWktPoint(wkt: string): { lat: number; lng: number } | null {
+	const match = wkt.match(/POINT\s*\(\s*([\d.-]+)\s+([\d.-]+)\s*\)/i);
+	if (!match) return null;
+	return { lng: parseFloat(match[1]), lat: parseFloat(match[2]) };
+}
 
 const STATUS_BADGES: Record<string, { label: string; color: string }> = {
 	REQUESTED: { label: 'Solicitada', color: '#F59E0B' },
@@ -53,6 +63,67 @@ export default function TripDetailScreen() {
 	const { data: trip, isLoading } = useTrip(tripId);
 	const { data: events } = useTripEvents(tripId);
 	const disputeMutation = useOpenDispute();
+	const currentUser = useAuthStore((state) => state.user);
+	const { route: mapRoute, fetchRoute } = useMapRoute();
+
+	const [showReview, setShowReview] = useState(false);
+	const [reviewRating, setReviewRating] = useState(0);
+	const [reviewComment, setReviewComment] = useState('');
+
+	const reviewMutation = useMutation({
+		mutationFn: () => {
+			if (!currentUser || !trip?.driver?.user?.id) {
+				throw new Error('Missing user or driver info');
+			}
+			return createReview({
+				tripId: tripId,
+				fromUserId: currentUser.id,
+				toUserId: trip.driver.user.id,
+				rating: reviewRating,
+				comment: reviewComment || undefined,
+			});
+		},
+		onSuccess: () => {
+			setShowReview(false);
+			setReviewRating(0);
+			setReviewComment('');
+			Alert.alert('Obrigado!', 'A tua avaliação foi registada.');
+		},
+		onError: () => {
+			Alert.alert('Erro', 'Não foi possível enviar a avaliação.');
+		},
+	});
+
+	useEffect(() => {
+		if (!trip?.pickupCoords || !trip?.dropoffCoords) return;
+		const pickup = parseWktPoint(trip.pickupCoords);
+		const dropoff = parseWktPoint(trip.dropoffCoords);
+		if (pickup && dropoff) {
+			fetchRoute([pickup.lng, pickup.lat], [dropoff.lng, dropoff.lat]);
+		}
+	}, [trip?.pickupCoords, trip?.dropoffCoords]);
+
+	const markers = useMemo(() => {
+		if (!trip?.pickupCoords || !trip?.dropoffCoords) return [];
+		const pickup = parseWktPoint(trip.pickupCoords);
+		const dropoff = parseWktPoint(trip.dropoffCoords);
+		if (!pickup || !dropoff) return [];
+		return [
+			{ id: 'pickup', latitude: pickup.lat, longitude: pickup.lng, title: 'Origem' },
+			{ id: 'dropoff', latitude: dropoff.lat, longitude: dropoff.lng, title: 'Destino' },
+		];
+	}, [trip?.pickupCoords, trip?.dropoffCoords]);
+
+	const routeCoords = useMemo(
+		() =>
+			mapRoute
+				? mapRoute.geometry.coordinates.map(([lng, lat]) => ({
+						latitude: lat,
+						longitude: lng,
+					}))
+				: [],
+		[mapRoute],
+	);
 
 	if (isLoading) {
 		return (
@@ -124,11 +195,17 @@ export default function TripDetailScreen() {
 					<MapView
 						style={{ flex: 1 }}
 						initialRegion={{
-							latitude: -8.8399,
-							longitude: 13.2344,
+							latitude: markers.length > 0
+								? (markers[0].latitude + markers[1].latitude) / 2
+								: -8.8399,
+							longitude: markers.length > 0
+								? (markers[0].longitude + markers[1].longitude) / 2
+								: 13.2344,
 							latitudeDelta: 0.05,
 							longitudeDelta: 0.05,
 						}}
+						markers={markers}
+						routeCoords={routeCoords}
 					/>
 				</Animated.View>
 
@@ -269,6 +346,88 @@ export default function TripDetailScreen() {
 								themeColors={themeColors}
 							/>
 						))}
+					</Animated.View>
+				)}
+
+				{/* Review */}
+				{trip.status === 'COMPLETED' && !trip.review && !showReview && (
+					<Animated.View entering={FadeInUp.duration(400).delay(380)} className="mb-6">
+						<TouchableOpacity
+							onPress={() => setShowReview(true)}
+							className="py-3 rounded-2xl items-center bg-primary"
+						>
+							<Text className="text-base font-bold text-secondary">Avaliar Viagem</Text>
+						</TouchableOpacity>
+					</Animated.View>
+				)}
+
+				{showReview && (
+					<Animated.View entering={FadeInUp.duration(400)} className="mb-6 p-4 rounded-2xl border"
+						style={{
+							backgroundColor: isDark ? '#1A1A1A' : '#F9FAFB',
+							borderColor: isDark ? '#333' : '#E5E7EB',
+						}}
+					>
+						<Text className="text-base font-bold mb-4" style={{ color: themeColors.text }}>Avaliar Viagem</Text>
+
+						{/* Star Rating */}
+						<View className="flex-row justify-center gap-2 mb-4">
+							{[1, 2, 3, 4, 5].map((star) => (
+								<TouchableOpacity
+									key={star}
+									onPress={() => setReviewRating(star)}
+									activeOpacity={0.7}
+								>
+									<Ionicons
+										name={star <= reviewRating ? 'star' : 'star-outline'}
+										size={36}
+										color={star <= reviewRating ? themeColors.primary : '#9CA3AF'}
+									/>
+								</TouchableOpacity>
+							))}
+						</View>
+
+						<View className="px-4 py-3 rounded-2xl border mb-4"
+							style={{
+								backgroundColor: isDark ? '#121212' : '#FFF',
+								borderColor: isDark ? '#333' : '#E5E7EB',
+							}}
+						>
+							<TextInput
+								className="text-base"
+								style={{ color: themeColors.text, minHeight: 60 }}
+								placeholder="Comentário (opcional)"
+								placeholderTextColor="#9CA3AF"
+								multiline
+								value={reviewComment}
+								onChangeText={setReviewComment}
+							/>
+						</View>
+
+						<View className="flex-row gap-3">
+							<TouchableOpacity
+								onPress={() => {
+									setShowReview(false);
+									setReviewRating(0);
+									setReviewComment('');
+								}}
+								className="flex-1 py-3 rounded-2xl items-center border"
+								style={{ borderColor: isDark ? '#333' : '#E5E7EB' }}
+							>
+								<Text className="text-base font-bold text-gray-500">Cancelar</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => reviewMutation.mutate()}
+								className="flex-1 py-3 rounded-2xl items-center bg-primary"
+								disabled={reviewRating === 0 || reviewMutation.isPending}
+							>
+								{reviewMutation.isPending ? (
+									<ActivityIndicator color="#000" />
+								) : (
+									<Text className="text-base font-bold text-secondary">Enviar</Text>
+								)}
+							</TouchableOpacity>
+						</View>
 					</Animated.View>
 				)}
 

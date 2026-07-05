@@ -34,7 +34,8 @@ import { fetchProfile } from '../../api/profile';
 import { fetchProfileStats, type ProfileStats } from '../../api/stats';
 import { useTrips } from '../../hooks/useTrips';
 import { logoutUser } from '../../services/auth';
-import { updateProfile } from '../../services/user';
+import { updateProfile, updateEmergencyContact } from '../../services/user';
+import { sendPhoneVerification, confirmPhoneVerification } from '../../services/phone';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 
@@ -86,6 +87,90 @@ export default function ProfileScreen() {
 			);
 		},
 	});
+
+	const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+	const [emergencyName, setEmergencyName] = useState('');
+	const [emergencyPhone, setEmergencyPhone] = useState('');
+
+	const emergencyMutation = useMutation({
+		mutationFn: () =>
+			updateEmergencyContact({
+				emergencyContactName: emergencyName,
+				emergencyContactPhone: emergencyPhone,
+			}),
+		onSuccess: (res) => {
+			const data = res.data as unknown as {
+				data?: import('../../store/authStore').User;
+			};
+			if (data?.data) {
+				setUser(data.data as any);
+			}
+			profileQuery.refetch();
+			setShowEmergencyModal(false);
+			Alert.alert('Sucesso', 'Contacto de emergência atualizado!');
+		},
+		onError: (err: AxiosError<{ msg?: string }>) => {
+			Alert.alert(
+				'Erro',
+				err.response?.data?.msg || 'Erro ao atualizar contacto de emergência.',
+			);
+		},
+	});
+
+	const handleEmergencyPress = () => {
+		setEmergencyName(user?.emergencyContactName || '');
+		setEmergencyPhone(user?.emergencyContactPhone || '');
+		setShowEmergencyModal(true);
+	};
+
+	const handleSaveEmergency = () => {
+		if (!emergencyName.trim() || !emergencyPhone.trim()) {
+			Alert.alert('Erro', 'Nome e telefone são obrigatórios.');
+			return;
+		}
+		emergencyMutation.mutate();
+	};
+
+	const [showOTPModal, setShowOTPModal] = useState(false);
+	const [otpCode, setOtpCode] = useState('');
+	const [otpSent, setOtpSent] = useState(false);
+
+	const sendOTPMutation = useMutation({
+		mutationFn: () => sendPhoneVerification(user!.phoneNumber),
+		onSuccess: () => {
+			setOtpSent(true);
+			Alert.alert('Código Enviado', 'Um código de verificação foi enviado para o teu telefone.');
+		},
+		onError: (err: AxiosError<{ msg?: string }>) => {
+			Alert.alert('Erro', err.response?.data?.msg || 'Erro ao enviar código.');
+		},
+	});
+
+	const confirmOTPMutation = useMutation({
+		mutationFn: () => confirmPhoneVerification(otpCode),
+		onSuccess: () => {
+			setShowOTPModal(false);
+			setOtpCode('');
+			setOtpSent(false);
+			profileQuery.refetch();
+			Alert.alert('Sucesso', 'Telefone verificado com sucesso!');
+		},
+		onError: (err: AxiosError<{ msg?: string }>) => {
+			Alert.alert('Erro', err.response?.data?.msg || 'Código inválido.');
+		},
+	});
+
+	const handleSendOTP = () => {
+		sendOTPMutation.mutate();
+	};
+
+	const handleConfirmOTP = () => {
+		if (!otpCode.trim()) {
+			Alert.alert('Atenção', 'Insere o código de verificação');
+			return;
+		}
+		confirmOTPMutation.mutate();
+	};
 
 	const handleLogout = () => {
 		Alert.alert('Sair da Conta', 'Tem certeza que deseja sair?', [
@@ -255,6 +340,11 @@ export default function ProfileScreen() {
 								}
 								emailVerified={user?.emailVerified}
 								onEditPress={handleEditPress}
+								onVerifyPhone={
+									!user?.phoneNumberVerified
+										? () => setShowOTPModal(true)
+										: undefined
+								}
 							/>
 						</Animated.View>
 
@@ -357,15 +447,17 @@ export default function ProfileScreen() {
 						</Animated.View>
 
 						{/* Emergency contact */}
-						{(user?.emergencyContactName ||
-							user?.emergencyContactPhone) && (
-							<Animated.View
-								entering={FadeInDown.duration(600).delay(450)}
-								className="mt-6"
+						<Animated.View
+							entering={FadeInDown.duration(600).delay(450)}
+							className="mt-6"
+						>
+							<Text className="text-xl font-extrabold text-secondary dark:text-off-white mb-4 tracking-tight">
+								Contato de Emergência
+							</Text>
+							<TouchableOpacity
+								onPress={handleEmergencyPress}
+								activeOpacity={0.7}
 							>
-								<Text className="text-xl font-extrabold text-secondary dark:text-off-white mb-4 tracking-tight">
-									Contato de Emergência
-								</Text>
 								<View className="bg-white dark:bg-soft-black rounded-2xl p-4 flex-row items-center gap-4"
 									style={{
 										elevation: 2,
@@ -388,14 +480,18 @@ export default function ProfileScreen() {
 										/>
 									</View>
 									<View className="flex-1">
-										{user?.emergencyContactName && (
-											<Text className="text-base font-bold text-secondary dark:text-off-white">
-												{user.emergencyContactName}
-											</Text>
-										)}
-										{user?.emergencyContactPhone && (
-											<Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">
-												{user.emergencyContactPhone}
+										{user?.emergencyContactName ? (
+											<>
+												<Text className="text-base font-bold text-secondary dark:text-off-white">
+													{user.emergencyContactName}
+												</Text>
+												<Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+													{user.emergencyContactPhone}
+												</Text>
+											</>
+										) : (
+											<Text className="text-sm font-medium text-gray-500 dark:text-gray-400">
+												Nenhum contacto definido
 											</Text>
 										)}
 									</View>
@@ -405,8 +501,8 @@ export default function ProfileScreen() {
 										color="#9CA3AF"
 									/>
 								</View>
-							</Animated.View>
-						)}
+							</TouchableOpacity>
+						</Animated.View>
 
 						{/* Logout */}
 						<Animated.View
@@ -496,6 +592,159 @@ export default function ProfileScreen() {
 								onPress={handleSaveProfile}
 								loading={updateMutation.isPending}
 							/>
+						</View>
+					</TouchableWithoutFeedback>
+				</KeyboardAvoidingView>
+			</Modal>
+
+			{/* Emergency Contact Modal */}
+			<Modal
+				visible={showEmergencyModal}
+				animationType="slide"
+				transparent
+				onRequestClose={() => setShowEmergencyModal(false)}
+			>
+				<KeyboardAvoidingView
+					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+					className="flex-1 justify-end"
+				>
+					<Pressable
+						className="absolute inset-0 bg-black/50"
+						onPress={() => setShowEmergencyModal(false)}
+					/>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View className="bg-white dark:bg-[#121212] rounded-t-3xl p-6 pb-10">
+							<View className="flex-row items-center justify-between mb-6">
+								<Text className="text-2xl font-black text-gray-900 dark:text-white">
+									{user?.emergencyContactName
+										? 'Editar Contacto'
+										: 'Adicionar Contacto'}
+								</Text>
+								<TouchableOpacity
+									onPress={() => setShowEmergencyModal(false)}
+									className="w-8 h-8 items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full"
+									activeOpacity={0.6}
+								>
+									<Ionicons
+										name="close"
+										size={20}
+										color="#000"
+									/>
+								</TouchableOpacity>
+							</View>
+
+							<Input
+								label="Nome do contacto"
+								value={emergencyName}
+								onChangeText={setEmergencyName}
+								placeholder="Ex: Maria Silva"
+								leftIcon="person-outline"
+							/>
+							<Input
+								label="Telefone do contacto"
+								value={emergencyPhone}
+								onChangeText={setEmergencyPhone}
+								placeholder="Ex: +244 900 000 000"
+								leftIcon="call-outline"
+								keyboardType="phone-pad"
+							/>
+
+							<Button
+								title="Salvar"
+								onPress={handleSaveEmergency}
+								loading={emergencyMutation.isPending}
+							/>
+						</View>
+					</TouchableWithoutFeedback>
+				</KeyboardAvoidingView>
+			</Modal>
+
+			{/* Phone Verification OTP Modal */}
+			<Modal
+				visible={showOTPModal}
+				animationType="slide"
+				transparent
+				onRequestClose={() => {
+					setShowOTPModal(false);
+					setOtpSent(false);
+					setOtpCode('');
+				}}
+			>
+				<KeyboardAvoidingView
+					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+					className="flex-1 justify-end"
+				>
+					<Pressable
+						className="absolute inset-0 bg-black/50"
+						onPress={() => {
+							setShowOTPModal(false);
+							setOtpSent(false);
+							setOtpCode('');
+						}}
+					/>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View className="bg-white dark:bg-[#121212] rounded-t-3xl p-6 pb-10">
+							<View className="flex-row items-center justify-between mb-6">
+								<Text className="text-2xl font-black text-gray-900 dark:text-white">
+									Verificar Telefone
+								</Text>
+								<TouchableOpacity
+									onPress={() => {
+										setShowOTPModal(false);
+										setOtpSent(false);
+										setOtpCode('');
+									}}
+									className="w-8 h-8 items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full"
+									activeOpacity={0.6}
+								>
+									<Ionicons
+										name="close"
+										size={20}
+										color="#000"
+									/>
+								</TouchableOpacity>
+							</View>
+
+							<Text className="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center">
+								{otpSent
+									? 'Insere o código de verificação enviado para o teu telefone.'
+									: `Enviaremos um código de verificação para ${user?.phoneNumber || 'o teu telefone'}.`}
+							</Text>
+
+							{!otpSent ? (
+								<Button
+									title="Enviar Código"
+									onPress={handleSendOTP}
+									loading={sendOTPMutation.isPending}
+								/>
+							) : (
+								<>
+									<Input
+										label="Código de verificação"
+										value={otpCode}
+										onChangeText={setOtpCode}
+										placeholder="Ex: 123456"
+										keyboardType="number-pad"
+									/>
+									<View className="mt-3">
+										<Button
+											title="Confirmar"
+											onPress={handleConfirmOTP}
+											loading={confirmOTPMutation.isPending}
+										/>
+									</View>
+									<TouchableOpacity
+										onPress={handleSendOTP}
+										className="mt-4 items-center"
+										disabled={sendOTPMutation.isPending}
+										activeOpacity={0.7}
+									>
+										<Text className="text-sm font-bold text-primary">
+											Reenviar código
+										</Text>
+									</TouchableOpacity>
+								</>
+							)}
 						</View>
 					</TouchableWithoutFeedback>
 				</KeyboardAvoidingView>

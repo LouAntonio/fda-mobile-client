@@ -49,6 +49,7 @@ export interface UserProfile {
 	role: UserRole;
 	status: UserStatus;
 	hasPassword: boolean;
+	hasMulticaixa?: boolean;
 	accounts?: { providerId: string }[];
 	emergencyContactName?: string | null;
 	emergencyContactPhone?: string | null;

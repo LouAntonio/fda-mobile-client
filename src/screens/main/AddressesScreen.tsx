@@ -11,17 +11,21 @@ import {
 	Keyboard,
 	TouchableWithoutFeedback,
 	RefreshControl,
+	Dimensions,
+	Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useAddresses } from '../../hooks/useAddresses';
+import { useCurrentLocation } from '../../hooks/useCurrentLocation';
 import { AddressListSkeleton } from '../../components/skeletons/AddressSkeleton';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import type { AddressLabel } from '../../types/api';
+import type { AddressLabel, UserAddress } from '../../types/api';
 
 const LABEL_OPTIONS: { label: string; value: AddressLabel; icon: string }[] = [
 	{ label: 'Casa', value: 'HOME', icon: 'home' },
@@ -51,10 +55,15 @@ export default function AddressesScreen() {
 		createAddress,
 		isCreating,
 		deleteAddress,
+		updateAddress,
+		isUpdating,
 	} = useAddresses();
+
+	const { location: currentLocation } = useCurrentLocation();
 
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [showAddModal, setShowAddModal] = useState(false);
+	const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
 
 	const handleRefresh = useCallback(async () => {
 		setIsRefreshing(true);
@@ -64,27 +73,86 @@ export default function AddressesScreen() {
 	const [newLabel, setNewLabel] = useState('');
 	const [newAddress, setNewAddress] = useState('');
 	const [selectedLabel, setSelectedLabel] = useState<AddressLabel>('OTHER');
+	const [selectedLat, setSelectedLat] = useState(
+		currentLocation?.latitude ?? -8.8399,
+	);
+	const [selectedLng, setSelectedLng] = useState(
+		currentLocation?.longitude ?? 13.2344,
+	);
 
 	const handleAdd = () => {
 		if (!newLabel || !newAddress) return;
-		createAddress(
-			{
-				label: selectedLabel,
-				customLabel:
-					selectedLabel === 'OTHER' ? newLabel : undefined,
-				address: newAddress,
-				lat: -8.8399,
-				lng: 13.2344,
-			},
-			{
-				onSuccess: () => {
-					setNewLabel('');
-					setNewAddress('');
-					setSelectedLabel('OTHER');
-					setShowAddModal(false);
+
+		if (editingAddress) {
+			updateAddress(
+				{
+					addressId: editingAddress.id,
+					data: {
+						label: selectedLabel,
+						customLabel:
+							selectedLabel === 'OTHER' ? newLabel : undefined,
+						address: newAddress,
+						lat: selectedLat,
+						lng: selectedLng,
+					},
 				},
-			},
-		);
+				{
+					onSuccess: () => {
+						setEditingAddress(null);
+						resetModalState();
+					},
+				},
+			);
+		} else {
+			createAddress(
+				{
+					label: selectedLabel,
+					customLabel:
+						selectedLabel === 'OTHER' ? newLabel : undefined,
+					address: newAddress,
+					lat: selectedLat,
+					lng: selectedLng,
+				},
+				{
+					onSuccess: () => {
+						resetModalState();
+					},
+				},
+			);
+		}
+	};
+
+	const handleUseCurrentLocation = () => {
+		if (currentLocation) {
+			setSelectedLat(currentLocation.latitude);
+			setSelectedLng(currentLocation.longitude);
+			if (currentLocation.address) {
+				setNewAddress(currentLocation.address);
+			}
+			Alert.alert('Localização', 'Posição atual definida no mapa');
+		} else {
+			Alert.alert('Erro', 'Não foi possível obter a localização atual');
+		}
+	};
+
+	const resetModalState = () => {
+		setNewLabel('');
+		setNewAddress('');
+		setSelectedLabel('OTHER');
+		setSelectedLat(currentLocation?.latitude ?? -8.8399);
+		setSelectedLng(currentLocation?.longitude ?? 13.2344);
+		setEditingAddress(null);
+		setShowAddModal(false);
+	};
+
+	const handleEdit = (item: UserAddress) => {
+		setEditingAddress(item);
+		setNewLabel(item.customLabel || item.label);
+		setNewAddress(item.address);
+		setSelectedLabel(item.label);
+		setSelectedLat(item.lat);
+		setSelectedLng(item.lng);
+		setShowAddModal(true);
 	};
 
 	const handleDelete = (id: string) => {
@@ -121,8 +189,11 @@ export default function AddressesScreen() {
 					Endereços
 				</Text>
 				<TouchableOpacity
-					onPress={() => setShowAddModal(true)}
-					className="w-10 h-10 items-center justify-center rounded-full bg-primary/10"
+								onPress={() => {
+									resetModalState();
+									setShowAddModal(true);
+								}}
+								className="w-10 h-10 items-center justify-center rounded-full bg-primary/10"
 					activeOpacity={0.7}
 				>
 					<Ionicons
@@ -240,6 +311,19 @@ export default function AddressesScreen() {
 											</View>
 											<TouchableOpacity
 												onPress={() =>
+													handleEdit(item)
+												}
+												className="p-2.5 rounded-full bg-blue-50 dark:bg-blue-500/10 mr-2"
+												activeOpacity={0.6}
+											>
+												<Ionicons
+													name="pencil-outline"
+													size={18}
+													color="#3B82F6"
+												/>
+											</TouchableOpacity>
+											<TouchableOpacity
+												onPress={() =>
 													handleDelete(item.id)
 												}
 												className="p-2.5 rounded-full bg-red-50 dark:bg-red-500/10"
@@ -261,7 +345,10 @@ export default function AddressesScreen() {
 					{addresses.length > 0 && (
 						<Animated.View entering={FadeInDown.duration(600)}>
 							<TouchableOpacity
-								onPress={() => setShowAddModal(true)}
+								onPress={() => {
+									resetModalState();
+									setShowAddModal(true);
+								}}
 								className="flex-row items-center justify-center py-5 gap-2"
 								activeOpacity={0.6}
 							>
@@ -282,12 +369,12 @@ export default function AddressesScreen() {
 				</ScrollView>
 			)}
 
-			{/* Add modal */}
+			{/* Add/Edit modal */}
 			<Modal
 				visible={showAddModal}
 				animationType="slide"
 				transparent
-				onRequestClose={() => setShowAddModal(false)}
+				onRequestClose={resetModalState}
 			>
 				<KeyboardAvoidingView
 					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -295,7 +382,7 @@ export default function AddressesScreen() {
 				>
 					<Pressable
 						className="absolute inset-0 bg-black/50"
-						onPress={() => setShowAddModal(false)}
+						onPress={resetModalState}
 					/>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<View
@@ -305,10 +392,10 @@ export default function AddressesScreen() {
 								<Text
 									className={`text-2xl font-black ${isDark ? 'text-white' : 'text-gray-900'}`}
 								>
-									Novo Endereço
+									{editingAddress ? 'Editar Endereço' : 'Novo Endereço'}
 								</Text>
 								<TouchableOpacity
-									onPress={() => setShowAddModal(false)}
+									onPress={resetModalState}
 									className="w-8 h-8 items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full"
 									activeOpacity={0.6}
 								>
@@ -369,6 +456,72 @@ export default function AddressesScreen() {
 								})}
 							</View>
 
+							{/* Map Picker */}
+							<View className="h-44 rounded-2xl overflow-hidden mb-4 border"
+								style={{ borderColor: isDark ? '#333' : '#E5E7EB' }}
+							>
+								<MapView
+									style={{ flex: 1 }}
+									initialRegion={{
+										latitude: selectedLat,
+										longitude: selectedLng,
+										latitudeDelta: 0.01,
+										longitudeDelta: 0.01,
+									}}
+									onPress={(e) => {
+										setSelectedLat(
+											e.nativeEvent.coordinate
+												.latitude,
+										);
+										setSelectedLng(
+											e.nativeEvent.coordinate
+												.longitude,
+										);
+									}}
+									mapType="standard"
+								>
+									<Marker
+										coordinate={{
+											latitude: selectedLat,
+											longitude: selectedLng,
+										}}
+										draggable
+										onDragEnd={(e) => {
+											setSelectedLat(
+												e.nativeEvent.coordinate
+													.latitude,
+											);
+											setSelectedLng(
+												e.nativeEvent.coordinate
+													.longitude,
+											);
+										}}
+										pinColor="#FFD700"
+									/>
+								</MapView>
+							</View>
+
+							<TouchableOpacity
+								onPress={handleUseCurrentLocation}
+								className="flex-row items-center justify-center py-2 mb-4 gap-2 rounded-xl border"
+								style={{
+									borderColor: isDark ? '#333' : '#E5E7EB',
+								}}
+								activeOpacity={0.7}
+							>
+								<Ionicons
+									name="locate-outline"
+									size={18}
+									color={themeColors.primary}
+								/>
+								<Text
+									className="text-sm font-bold"
+									style={{ color: themeColors.primary }}
+								>
+									Usar localização atual
+								</Text>
+							</TouchableOpacity>
+
 							<Input
 								label={
 									selectedLabel === 'OTHER'
@@ -386,9 +539,9 @@ export default function AddressesScreen() {
 								placeholder="Ex: Rocha Cabine, Luanda"
 							/>
 							<Button
-								title="Adicionar"
+								title={editingAddress ? 'Salvar' : 'Adicionar'}
 								onPress={handleAdd}
-								loading={isCreating}
+								loading={isCreating || isUpdating}
 							/>
 						</View>
 					</TouchableWithoutFeedback>

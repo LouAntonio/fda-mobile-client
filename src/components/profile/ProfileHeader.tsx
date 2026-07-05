@@ -11,6 +11,7 @@ interface ProfileHeaderProps {
 	phoneNumberVerified?: boolean;
 	emailVerified?: boolean;
 	onEditPress: () => void;
+	onVerifyPhone?: () => void;
 }
 
 export function ProfileHeader({
@@ -22,6 +23,7 @@ export function ProfileHeader({
 	phoneNumberVerified,
 	emailVerified,
 	onEditPress,
+	onVerifyPhone,
 }: ProfileHeaderProps) {
 	const initials = `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase();
 
@@ -74,14 +76,24 @@ export function ProfileHeader({
 					<Text className="text-sm font-medium text-gray-500 dark:text-gray-400 ml-1.5">
 						{phoneNumber}
 					</Text>
-					{phoneNumberVerified && (
+					{phoneNumberVerified ? (
 						<Ionicons
 							name="checkmark-circle"
 							size={14}
 							color="#10B981"
 							style={{ marginLeft: 4 }}
 						/>
-					)}
+					) : onVerifyPhone ? (
+						<TouchableOpacity
+							onPress={onVerifyPhone}
+							className="ml-2 px-2 py-0.5 rounded-full bg-primary/20"
+							activeOpacity={0.7}
+						>
+							<Text className="text-[10px] font-bold text-primary">
+								Verificar
+							</Text>
+						</TouchableOpacity>
+					) : null}
 				</View>
 				{email && (
 					<View className="flex-row items-center">

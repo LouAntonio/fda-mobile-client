@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 import {
 	fetchAddresses,
 	createAddress,
+	updateAddress,
 	deleteAddress,
 } from '../api/address';
 import { useAuthStore } from '../store/authStore';
@@ -62,6 +63,35 @@ export function useAddresses() {
 		},
 	});
 
+	const updateMutation = useMutation({
+		mutationFn: async ({
+			addressId,
+			data,
+		}: {
+			addressId: string;
+			data: {
+				label?: AddressLabel;
+				customLabel?: string;
+				address?: string;
+				reference?: string;
+				lat?: number;
+				lng?: number;
+			};
+		}) => {
+			await updateAddress(userId!, addressId, data);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['addresses', userId] });
+			Alert.alert('Sucesso', 'Endereço atualizado!');
+		},
+		onError: (err: AxiosError<{ msg?: string }>) => {
+			Alert.alert(
+				'Erro',
+				err.response?.data?.msg || 'Erro ao atualizar endereço.',
+			);
+		},
+	});
+
 	return {
 		addresses: query.data ?? ([] as UserAddress[]),
 		isLoading: query.isLoading,
@@ -71,5 +101,7 @@ export function useAddresses() {
 		isCreating: createMutation.isPending,
 		deleteAddress: deleteMutation.mutate,
 		isDeleting: deleteMutation.isPending,
+		updateAddress: updateMutation.mutate,
+		isUpdating: updateMutation.isPending,
 	};
 }

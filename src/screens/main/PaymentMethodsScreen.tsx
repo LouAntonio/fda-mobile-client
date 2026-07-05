@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
 	View,
 	Text,
@@ -14,31 +14,56 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
-
-const INITIAL_METHODS: Array<{
-	id: string;
-	type: string;
-	label: string;
-	icon: 'cash-outline' | 'phone';
-	details: string;
-	isDefault: boolean;
-	isRemovable: boolean;
-}> = [
-	{
-		id: 'cash',
-		type: 'cash',
-		label: 'Dinheiro',
-		icon: 'cash-outline' as const,
-		details: 'Pagamento com Dinheiro vivo',
-		isDefault: true,
-		isRemovable: false,
-	},
-];
+import { useAuthStore } from '../../store/authStore';
+import { useQuery } from '@tanstack/react-query';
+import { fetchProfile } from '../../api/profile';
 
 export default function PaymentMethodsScreen() {
 	const navigation = useNavigation();
 	const { themeColors, isDark } = useThemeColors();
-	const hasMulticaixa = false;
+	const userFromStore = useAuthStore((state) => state.user);
+
+	const { data: profileData } = useQuery({
+		queryKey: ['profile'],
+		queryFn: fetchProfile,
+		enabled: !userFromStore?.hasMulticaixa,
+	});
+
+	const hasMulticaixa = userFromStore?.hasMulticaixa ?? profileData?.user?.hasMulticaixa ?? false;
+
+	const methods = useMemo(() => {
+		const list: Array<{
+			id: string;
+			type: string;
+			label: string;
+			icon: 'cash-outline' | 'phone';
+			details: string;
+			isDefault: boolean;
+			isRemovable: boolean;
+		}> = [
+			{
+				id: 'cash',
+				type: 'cash',
+				label: 'Dinheiro',
+				icon: 'cash-outline' as const,
+				details: 'Pagamento com Dinheiro vivo',
+				isDefault: true,
+				isRemovable: false,
+			},
+		];
+		if (hasMulticaixa) {
+			list.push({
+				id: 'mcx',
+				type: 'multicaixa',
+				label: 'Multicaixa Express',
+				icon: 'phone' as const,
+				details: '**** **** **** 1234',
+				isDefault: false,
+				isRemovable: true,
+			});
+		}
+		return list;
+	}, [hasMulticaixa]);
 
 	return (
 		<SafeAreaView
@@ -92,7 +117,7 @@ export default function PaymentMethodsScreen() {
 
 				{/* Cards */}
 				<View className="gap-5">
-					{INITIAL_METHODS.map((method, index) => (
+					{methods.map((method, index) => (
 						<Animated.View
 							key={method.id}
 							entering={FadeInRight.duration(500).delay(

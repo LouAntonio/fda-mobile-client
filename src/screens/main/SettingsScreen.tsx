@@ -9,6 +9,7 @@ import {
 	Alert,
 	TextInput,
 	Modal,
+	ActivityIndicator,
 	Pressable,
 	KeyboardAvoidingView,
 	Platform,
@@ -19,8 +20,11 @@ import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useThemeStore } from '../../store/themeStore';
+import { useNotificationStore } from '../../store/notificationStore';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { deleteAccount } from '../../api/account';
+import { changePassword, changeEmail } from '../../services/user';
 import { useAuthStore } from '../../store/authStore';
 
 export default function SettingsScreen() {
@@ -69,6 +73,77 @@ export default function SettingsScreen() {
 			Alert.alert('Erro', msg);
 		},
 	});
+
+	const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+	const [passwordCurrent, setPasswordCurrent] = useState('');
+	const [passwordNew, setPasswordNew] = useState('');
+	const [passwordConfirm, setPasswordConfirm] = useState('');
+
+	const passwordMutation = useMutation({
+		mutationFn: () =>
+			changePassword({
+				currentPassword: passwordCurrent,
+				newPassword: passwordNew,
+			}),
+		onSuccess: () => {
+			setShowChangePasswordModal(false);
+			setPasswordCurrent('');
+			setPasswordNew('');
+			setPasswordConfirm('');
+			Alert.alert('Sucesso', 'Palavra-passe alterada com sucesso!');
+		},
+		onError: (err: AxiosError<{ msg?: string }>) => {
+			Alert.alert(
+				'Erro',
+				err.response?.data?.msg || 'Erro ao alterar palavra-passe.',
+			);
+		},
+	});
+
+	const handleChangePassword = () => {
+		if (!passwordCurrent.trim() || !passwordNew.trim()) {
+			Alert.alert('Atenção', 'Preencha todos os campos');
+			return;
+		}
+		if (passwordNew !== passwordConfirm) {
+			Alert.alert('Atenção', 'As novas palavras-passe não coincidem');
+			return;
+		}
+		if (passwordNew.length < 6) {
+			Alert.alert('Atenção', 'A nova palavra-passe deve ter pelo menos 6 caracteres');
+			return;
+		}
+		passwordMutation.mutate();
+	};
+
+	const [showChangeEmailModal, setShowChangeEmailModal] = useState(false);
+	const [newEmail, setNewEmail] = useState('');
+	const [emailPassword, setEmailPassword] = useState('');
+
+	const emailMutation = useMutation({
+		mutationFn: () =>
+			changeEmail({ newEmail, password: emailPassword }),
+		onSuccess: () => {
+			setShowChangeEmailModal(false);
+			setNewEmail('');
+			setEmailPassword('');
+			Alert.alert('Sucesso', 'Email alterado! Verifica a tua caixa de entrada.');
+		},
+		onError: (err: AxiosError<{ msg?: string }>) => {
+			Alert.alert(
+				'Erro',
+				err.response?.data?.msg || 'Erro ao alterar email.',
+			);
+		},
+	});
+
+	const handleChangeEmail = () => {
+		if (!newEmail.trim() || !emailPassword.trim()) {
+			Alert.alert('Atenção', 'Preencha todos os campos');
+			return;
+		}
+		emailMutation.mutate();
+	};
 
 	const handleDeleteAccount = () => {
 		setShowDeleteModal(true);
@@ -237,6 +312,98 @@ export default function SettingsScreen() {
 						Aplicativo
 					</Text>
 					<View style={[styles.settingsCard, cardBgStyle]}>
+						<Animated.View
+							entering={FadeInRight.duration(400).delay(50)}
+						>
+							<TouchableOpacity
+								style={styles.settingRow}
+								onPress={() => setShowChangePasswordModal(true)}
+								activeOpacity={0.7}
+							>
+								<View
+									style={[
+										styles.iconBackground,
+										{ backgroundColor: '#FF950015' },
+									]}
+								>
+									<Ionicons
+										name="lock-closed-outline"
+										size={22}
+										color="#FF9500"
+									/>
+								</View>
+								<View style={styles.settingInfo}>
+									<Text
+										style={[
+											styles.settingLabel,
+											{ color: themeColors.text },
+										]}
+									>
+										Alterar Palavra-passe
+									</Text>
+									<Text
+										style={[
+											styles.settingSublabel,
+											{ color: themeColors.secondary },
+										]}
+									>
+										Atualiza a tua password
+									</Text>
+								</View>
+								<Ionicons
+									name="chevron-forward"
+									size={20}
+									color={themeColors.border}
+								/>
+							</TouchableOpacity>
+						</Animated.View>
+						<View style={{ height: 0.5, backgroundColor: themeColors.border, marginLeft: 74 }} />
+						<Animated.View
+							entering={FadeInRight.duration(400).delay(75)}
+						>
+							<TouchableOpacity
+								style={styles.settingRow}
+								onPress={() => setShowChangeEmailModal(true)}
+								activeOpacity={0.7}
+							>
+								<View
+									style={[
+										styles.iconBackground,
+										{ backgroundColor: '#007AFF15' },
+									]}
+								>
+									<Ionicons
+										name="mail-outline"
+										size={22}
+										color="#007AFF"
+									/>
+								</View>
+								<View style={styles.settingInfo}>
+									<Text
+										style={[
+											styles.settingLabel,
+											{ color: themeColors.text },
+										]}
+									>
+										Alterar Email
+									</Text>
+									<Text
+										style={[
+											styles.settingSublabel,
+											{ color: themeColors.secondary },
+										]}
+									>
+										Muda o teu email
+									</Text>
+								</View>
+								<Ionicons
+									name="chevron-forward"
+									size={20}
+									color={themeColors.border}
+								/>
+							</TouchableOpacity>
+						</Animated.View>
+						<View style={{ height: 0.5, backgroundColor: themeColors.border, marginLeft: 74 }} />
 						<Animated.View
 							entering={FadeInRight.duration(400).delay(100)}
 						>
@@ -410,6 +577,210 @@ export default function SettingsScreen() {
 					</Animated.View>
 				</KeyboardAvoidingView>
 			</Modal>
+
+			{/* Change Password Modal */}
+			<Modal
+				visible={showChangePasswordModal}
+				animationType="slide"
+				transparent
+				onRequestClose={() => setShowChangePasswordModal(false)}
+			>
+				<KeyboardAvoidingView
+					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+					className="flex-1 justify-end"
+				>
+					<Pressable
+						className="absolute inset-0 bg-black/50"
+						onPress={() => setShowChangePasswordModal(false)}
+					/>
+					<View
+						className="rounded-t-3xl p-6 pb-10"
+						style={{
+							backgroundColor: isDark ? '#121212' : '#FFF',
+						}}
+					>
+						<View className="flex-row items-center justify-between mb-6">
+							<Text
+								className="text-2xl font-black"
+								style={{ color: themeColors.text }}
+							>
+								Alterar Palavra-passe
+							</Text>
+							<TouchableOpacity
+								onPress={() => setShowChangePasswordModal(false)}
+								className="w-8 h-8 items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full"
+							>
+								<Ionicons
+									name="close"
+									size={20}
+									color={isDark ? '#FFF' : '#000'}
+								/>
+							</TouchableOpacity>
+						</View>
+
+						<View
+							className="px-4 py-3.5 rounded-2xl border mb-3"
+							style={{
+								backgroundColor: isDark ? '#2C2C2E' : '#F5F5F5',
+								borderColor: isDark ? '#333' : '#E5E7EB',
+							}}
+						>
+							<TextInput
+								className="text-base"
+								style={{ color: themeColors.text }}
+								placeholder="Palavra-passe atual"
+								placeholderTextColor="#9CA3AF"
+								secureTextEntry
+								value={passwordCurrent}
+								onChangeText={setPasswordCurrent}
+							/>
+						</View>
+						<View
+							className="px-4 py-3.5 rounded-2xl border mb-3"
+							style={{
+								backgroundColor: isDark ? '#2C2C2E' : '#F5F5F5',
+								borderColor: isDark ? '#333' : '#E5E7EB',
+							}}
+						>
+							<TextInput
+								className="text-base"
+								style={{ color: themeColors.text }}
+								placeholder="Nova palavra-passe"
+								placeholderTextColor="#9CA3AF"
+								secureTextEntry
+								value={passwordNew}
+								onChangeText={setPasswordNew}
+							/>
+						</View>
+						<View
+							className="px-4 py-3.5 rounded-2xl border mb-6"
+							style={{
+								backgroundColor: isDark ? '#2C2C2E' : '#F5F5F5',
+								borderColor: isDark ? '#333' : '#E5E7EB',
+							}}
+						>
+							<TextInput
+								className="text-base"
+								style={{ color: themeColors.text }}
+								placeholder="Confirmar nova palavra-passe"
+								placeholderTextColor="#9CA3AF"
+								secureTextEntry
+								value={passwordConfirm}
+								onChangeText={setPasswordConfirm}
+							/>
+						</View>
+
+						<TouchableOpacity
+							className="py-4 rounded-2xl items-center bg-primary"
+							onPress={handleChangePassword}
+							disabled={passwordMutation.isPending}
+							activeOpacity={0.7}
+						>
+							{passwordMutation.isPending ? (
+								<ActivityIndicator color="#000" />
+							) : (
+								<Text className="text-base font-black text-secondary">
+									Alterar
+								</Text>
+							)}
+						</TouchableOpacity>
+					</View>
+				</KeyboardAvoidingView>
+			</Modal>
+
+			{/* Change Email Modal */}
+			<Modal
+				visible={showChangeEmailModal}
+				animationType="slide"
+				transparent
+				onRequestClose={() => setShowChangeEmailModal(false)}
+			>
+				<KeyboardAvoidingView
+					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+					className="flex-1 justify-end"
+				>
+					<Pressable
+						className="absolute inset-0 bg-black/50"
+						onPress={() => setShowChangeEmailModal(false)}
+					/>
+					<View
+						className="rounded-t-3xl p-6 pb-10"
+						style={{
+							backgroundColor: isDark ? '#121212' : '#FFF',
+						}}
+					>
+						<View className="flex-row items-center justify-between mb-6">
+							<Text
+								className="text-2xl font-black"
+								style={{ color: themeColors.text }}
+							>
+								Alterar Email
+							</Text>
+							<TouchableOpacity
+								onPress={() => setShowChangeEmailModal(false)}
+								className="w-8 h-8 items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full"
+							>
+								<Ionicons
+									name="close"
+									size={20}
+									color={isDark ? '#FFF' : '#000'}
+								/>
+							</TouchableOpacity>
+						</View>
+
+						<View
+							className="px-4 py-3.5 rounded-2xl border mb-3"
+							style={{
+								backgroundColor: isDark ? '#2C2C2E' : '#F5F5F5',
+								borderColor: isDark ? '#333' : '#E5E7EB',
+							}}
+						>
+							<TextInput
+								className="text-base"
+								style={{ color: themeColors.text }}
+								placeholder="Novo email"
+								placeholderTextColor="#9CA3AF"
+								keyboardType="email-address"
+								autoCapitalize="none"
+								value={newEmail}
+								onChangeText={setNewEmail}
+							/>
+						</View>
+						<View
+							className="px-4 py-3.5 rounded-2xl border mb-6"
+							style={{
+								backgroundColor: isDark ? '#2C2C2E' : '#F5F5F5',
+								borderColor: isDark ? '#333' : '#E5E7EB',
+							}}
+						>
+							<TextInput
+								className="text-base"
+								style={{ color: themeColors.text }}
+								placeholder="Palavra-passe para confirmar"
+								placeholderTextColor="#9CA3AF"
+								secureTextEntry
+								value={emailPassword}
+								onChangeText={setEmailPassword}
+							/>
+						</View>
+
+						<TouchableOpacity
+							className="py-4 rounded-2xl items-center bg-primary"
+							onPress={handleChangeEmail}
+							disabled={emailMutation.isPending}
+							activeOpacity={0.7}
+						>
+							{emailMutation.isPending ? (
+								<ActivityIndicator color="#000" />
+							) : (
+								<Text className="text-base font-black text-secondary">
+									Alterar
+								</Text>
+							)}
+						</TouchableOpacity>
+					</View>
+				</KeyboardAvoidingView>
+			</Modal>
 		</SafeAreaView>
 	);
 }
@@ -431,7 +802,39 @@ function NotificationToggle({
 	iconColor: string;
 	isLast: boolean;
 }) {
-	const [enabled, setEnabled] = useState(defaultValue);
+	const pushEnabled = useNotificationStore((s) => s.pushEnabled);
+	const emailEnabled = useNotificationStore((s) => s.emailEnabled);
+	const soundsEnabled = useNotificationStore((s) => s.soundsEnabled);
+	const setPushEnabled = useNotificationStore((s) => s.setPushEnabled);
+	const setEmailEnabled = useNotificationStore((s) => s.setEmailEnabled);
+	const setSoundsEnabled = useNotificationStore((s) => s.setSoundsEnabled);
+
+	const getValue = () => {
+		switch (label) {
+			case 'Notificações Push':
+				return pushEnabled;
+			case 'Notificações por E-mail':
+				return emailEnabled;
+			case 'Sons':
+				return soundsEnabled;
+			default:
+				return false;
+		}
+	};
+
+	const setValue = (v: boolean) => {
+		switch (label) {
+			case 'Notificações Push':
+				setPushEnabled(v);
+				break;
+			case 'Notificações por E-mail':
+				setEmailEnabled(v);
+				break;
+			case 'Sons':
+				setSoundsEnabled(v);
+				break;
+		}
+	};
 
 	return (
 		<Animated.View entering={FadeInRight.duration(400)}>
@@ -467,8 +870,8 @@ function NotificationToggle({
 					</Text>
 				</View>
 				<Switch
-					value={enabled}
-					onValueChange={setEnabled}
+					value={getValue()}
+					onValueChange={setValue}
 					trackColor={{
 						false: '#D1D3D4',
 						true: colors.primary,

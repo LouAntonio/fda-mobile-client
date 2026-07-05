@@ -5,12 +5,41 @@ import {
 	ScrollView,
 	StyleSheet,
 	TouchableOpacity,
+	Linking,
+	Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
+
+const LEGAL_URLS: Record<string, string> = {
+	'Termos de Uso': 'https://flashdelivery.co.ao/termos',
+	'Política de Privacidade': 'https://flashdelivery.co.ao/privacidade',
+	'Política de Reembolso': 'https://flashdelivery.co.ao/reembolso',
+};
+
+const HELP_URLS: Record<string, string> = {
+	'FAQ - Perguntas Frequentes': 'https://flashdelivery.co.ao/faq',
+	'Guia do Usuário': 'https://flashdelivery.co.ao/guia',
+};
+
+const SOCIAL_URLS: Record<string, string> = {
+	Instagram: 'https://instagram.com/flashdelivery.ao',
+	Facebook: 'https://facebook.com/flashdelivery.ao',
+	'Twitter / X': 'https://twitter.com/flashdeliveryao',
+};
+
+function openURL(url: string) {
+	Linking.canOpenURL(url).then((supported) => {
+		if (supported) {
+			Linking.openURL(url);
+		} else {
+			Alert.alert('Erro', 'Não foi possível abrir o link.');
+		}
+	});
+}
 
 const INFO_SECTIONS: {
 	title: string;
@@ -19,6 +48,7 @@ const INFO_SECTIONS: {
 		label: string;
 		value?: string;
 		action?: boolean;
+		onPress?: () => void;
 	}[];
 }[] = [
 	{
@@ -38,16 +68,19 @@ const INFO_SECTIONS: {
 				icon: 'document-text-outline',
 				label: 'Termos de Uso',
 				action: true,
+				onPress: () => openURL(LEGAL_URLS['Termos de Uso']),
 			},
 			{
 				icon: 'shield-checkmark-outline',
 				label: 'Política de Privacidade',
 				action: true,
+				onPress: () => openURL(LEGAL_URLS['Política de Privacidade']),
 			},
 			{
 				icon: 'receipt-outline',
 				label: 'Política de Reembolso',
 				action: true,
+				onPress: () => openURL(LEGAL_URLS['Política de Reembolso']),
 			},
 		],
 	},
@@ -58,11 +91,13 @@ const INFO_SECTIONS: {
 				icon: 'help-circle-outline',
 				label: 'FAQ - Perguntas Frequentes',
 				action: true,
+				onPress: () => openURL(HELP_URLS['FAQ - Perguntas Frequentes']),
 			},
 			{
 				icon: 'book-outline',
 				label: 'Guia do Usuário',
 				action: true,
+				onPress: () => openURL(HELP_URLS['Guia do Usuário']),
 			},
 		],
 	},
@@ -163,6 +198,7 @@ export default function InfoScreen() {
 									)}
 								>
 									<TouchableOpacity
+										key={item.label}
 										style={[
 											styles.itemRow,
 											iIndex <
@@ -175,6 +211,7 @@ export default function InfoScreen() {
 										]}
 										activeOpacity={item.action ? 0.6 : 1}
 										disabled={!item.action}
+										onPress={item.onPress}
 									>
 										<View style={styles.itemIconContainer}>
 											<Ionicons
@@ -251,6 +288,7 @@ export default function InfoScreen() {
 								key={social.label}
 								style={styles.socialItem}
 								activeOpacity={0.6}
+								onPress={() => openURL(SOCIAL_URLS[social.label])}
 							>
 								<Ionicons
 									name={social.icon as any}

@@ -20,6 +20,7 @@ import { useCurrentLocation } from '../../hooks/useCurrentLocation';
 import { useEstimateTrip, useRequestTrip } from '../../hooks/useTrips';
 import { useMapSearch } from '../../hooks/useMapSearch';
 import { useMapRoute } from '../../hooks/useMapRoute';
+import { validateCoupon } from '../../api/coupon';
 import MapView from '../../components/MapView';
 import type { MainStackParamList } from '../../types/navigation';
 
@@ -37,6 +38,10 @@ export default function TripRequestScreen() {
 		name: string;
 	} | null>(null);
 	const [couponCode, setCouponCode] = useState('');
+	const [couponValid, setCouponValid] = useState<boolean | null>(null);
+	const [couponDiscount, setCouponDiscount] = useState<number | null>(null);
+	const [validatingCoupon, setValidatingCoupon] = useState(false);
+	const [appliedCoupon, setAppliedCoupon] = useState('');
 	const [pickupReference, setPickupReference] = useState('');
 	const [dropoffReference, setDropoffReference] = useState('');
 
@@ -73,6 +78,50 @@ export default function TripRequestScreen() {
 		});
 		setDropoffQuery(item.place_name);
 		clearResults();
+	};
+
+	const handleValidateCoupon = async () => {
+		if (!couponCode.trim()) {
+			setCouponValid(null);
+			setCouponDiscount(null);
+			setAppliedCoupon('');
+			return;
+		}
+		if (!estimate) {
+			Alert.alert('Atenção', 'Calcula o preço primeiro');
+			return;
+		}
+		setValidatingCoupon(true);
+		try {
+			const result = await validateCoupon({
+				code: couponCode.trim(),
+				tripAmount: estimate.totalPrice,
+			});
+			if (result.valid && result.discountAmount && result.discountAmount > 0) {
+				setCouponValid(true);
+				setCouponDiscount(result.discountAmount);
+				setAppliedCoupon(couponCode.trim());
+			} else {
+				setCouponValid(false);
+				setCouponDiscount(null);
+				setAppliedCoupon('');
+				Alert.alert('Cupão inválido', result.reason || 'Este cupão não é válido');
+			}
+		} catch {
+			setCouponValid(false);
+			setCouponDiscount(null);
+			setAppliedCoupon('');
+			Alert.alert('Erro', 'Erro ao validar cupão');
+		} finally {
+			setValidatingCoupon(false);
+		}
+	};
+
+	const handleRemoveCoupon = () => {
+		setCouponCode('');
+		setCouponValid(null);
+		setCouponDiscount(null);
+		setAppliedCoupon('');
 	};
 
 	const handleRequest = () => {
@@ -259,18 +308,61 @@ export default function TripRequestScreen() {
 						</View>
 
 						{/* Coupon */}
-						<TextInput
-							className="px-4 py-3 rounded-2xl border text-base mb-3"
-							style={{
-								backgroundColor: isDark ? '#2A2A2A' : '#F9FAFB',
-								borderColor: isDark ? '#333' : '#E5E7EB',
-								color: themeColors.text,
-							}}
-							placeholder="Cupom de desconto (opcional)"
-							placeholderTextColor="#9CA3AF"
-							value={couponCode}
-							onChangeText={setCouponCode}
-						/>
+						<View className="flex-row items-center gap-2 mb-3">
+							<View className="flex-1">
+								<TextInput
+									className="px-4 py-3 rounded-2xl border text-base"
+									style={{
+										backgroundColor: isDark ? '#2A2A2A' : '#F9FAFB',
+										borderColor: appliedCoupon
+											? '#10B981'
+											: couponValid === false
+												? '#EF4444'
+												: isDark ? '#333' : '#E5E7EB',
+										color: themeColors.text,
+									}}
+									placeholder="Cupom de desconto (opcional)"
+									placeholderTextColor="#9CA3AF"
+									value={couponCode}
+									onChangeText={(t) => {
+										setCouponCode(t);
+										if (appliedCoupon) {
+											setAppliedCoupon('');
+											setCouponValid(null);
+											setCouponDiscount(null);
+										}
+									}}
+								/>
+								{couponDiscount != null && couponValid && (
+									<Text className="text-xs font-bold text-green-500 mt-1 ml-1">
+										-{couponDiscount.toLocaleString('pt-AO')} Kz
+									</Text>
+								)}
+							</View>
+							{appliedCoupon ? (
+								<TouchableOpacity
+									onPress={handleRemoveCoupon}
+									className="py-3 px-4 rounded-2xl items-center border border-red-500/20 bg-red-500/10"
+									activeOpacity={0.7}
+								>
+									<Ionicons name="close" size={20} color="#EF4444" />
+								</TouchableOpacity>
+							) : (
+								<TouchableOpacity
+									onPress={handleValidateCoupon}
+									className="py-3 px-4 rounded-2xl items-center bg-primary"
+									disabled={!couponCode.trim() || validatingCoupon}
+									activeOpacity={0.7}
+									style={{ opacity: !couponCode.trim() ? 0.5 : 1 }}
+								>
+									{validatingCoupon ? (
+										<ActivityIndicator size="small" color="#000" />
+									) : (
+										<Text className="text-sm font-black text-secondary">Validar</Text>
+									)}
+								</TouchableOpacity>
+							)}
+						</View>
 
 						{/* Estimate + Request Button */}
 						<View className="flex-row items-center gap-3">

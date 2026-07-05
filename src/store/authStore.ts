@@ -10,6 +10,7 @@ export type User = {
 	email?: string | null;
 	emailVerified?: boolean;
 	phoneNumberVerified?: boolean;
+	hasMulticaixa?: boolean;
 	image?: string | null;
 	role: string;
 	hasPassword?: boolean;
