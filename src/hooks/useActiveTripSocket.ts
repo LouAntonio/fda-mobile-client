@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { Alert } from 'react-native';
 import { useAuthStore } from '../store/authStore';
 import { socketManager } from '../lib/socket-manager';
 import { useQueryClient } from '@tanstack/react-query';
@@ -66,7 +67,18 @@ export function useActiveTripSocket({
 			});
 		});
 
-		cleanupFns.current = [off1, off2, off3, off4, off5];
+		const off6 = socketManager.on('trip:no_drivers', (data) => {
+			Alert.alert(
+				'Sem motoristas',
+				data.message || 'Nenhum motorista disponível no momento.',
+			);
+		});
+
+		const off7 = socketManager.on('error', (data) => {
+			console.warn('[Socket error]', data.message);
+		});
+
+		cleanupFns.current = [off1, off2, off3, off4, off5, off6, off7];
 
 		return () => {
 			socketManager.leaveTrip(tripId);

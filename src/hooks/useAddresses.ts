@@ -8,7 +8,7 @@ import {
 	deleteAddress,
 } from '../api/address';
 import { useAuthStore } from '../store/authStore';
-import type { AddressLabel, UserAddress, ApiResponse } from '../types/api';
+import type { AddressLabel, UserAddress } from '../types/api';
 
 export function useAddresses() {
 	const user = useAuthStore((state) => state.user);
@@ -19,8 +19,8 @@ export function useAddresses() {
 		queryKey: ['addresses', userId],
 		queryFn: async () => {
 			const res = await fetchAddresses(userId!);
-			const body = res.data as unknown as ApiResponse<UserAddress[]>;
-			return body.data ?? [];
+			const body = res.data as unknown as UserAddress[];
+			return body ?? [];
 		},
 		enabled: !!userId,
 	});
