@@ -21,7 +21,13 @@ export default function SplashScreen({
 	const scaleAnim = useMemo(() => new Animated.Value(0.8), []);
 
 	const { themeColors } = useThemeColors();
+	const hydrated = useAuthStore((s) => s.hydrated);
+	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+	const accessToken = useAuthStore((s) => s.accessToken);
+
 	useEffect(() => {
+		if (!hydrated) return;
+
 		Animated.parallel([
 			Animated.timing(fadeAnim, {
 				toValue: 1,
@@ -42,8 +48,8 @@ export default function SplashScreen({
 				duration: 1500,
 				useNativeDriver: true,
 			}).start(() => {
-				const { isAuthenticated } = useAuthStore.getState();
-				if (isAuthenticated) {
+				const store = useAuthStore.getState();
+				if (store.hydrated && store.isAuthenticated && store.accessToken) {
 					(navigation as any).replace('Main');
 				} else {
 					(navigation as any).replace('Onboarding');
@@ -52,7 +58,7 @@ export default function SplashScreen({
 		}, duration - 400);
 
 		return () => clearTimeout(timer);
-	}, [duration, navigation, fadeAnim, scaleAnim]);
+	}, [hydrated, duration, navigation, fadeAnim, scaleAnim]);
 
 	return (
 		<SafeAreaView

@@ -7,10 +7,16 @@ import { Appearance, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { navigationRef } from './src/lib/navigationRef';
+import * as Notifications from 'expo-notifications';
 import { useThemeStore } from './src/store/themeStore';
 import { useThemeColors } from './src/hooks/useThemeColors';
 import { registerPushTokenOnServer } from './src/services/notifications';
 import RootNavigator from './src/navigation/RootNavigator';
+
+type NotificationData = {
+	type?: string;
+	tripId?: string;
+};
 
 export default function App() {
 	const { theme } = useThemeStore();
@@ -19,6 +25,34 @@ export default function App() {
 	// Registar push token no arranque
 	useEffect(() => {
 		registerPushTokenOnServer();
+	}, []);
+
+	// Deep linking de notificações push
+	useEffect(() => {
+		const sub = Notifications.addNotificationResponseReceivedListener(
+			(response) => {
+				const data = response.notification.request
+					.content.data as NotificationData;
+
+				if (!data.type || !navigationRef.isReady()) return;
+
+				switch (data.type) {
+					case 'trip_status':
+					case 'trip_offer':
+						if (data.tripId) {
+							navigationRef.navigate('Main', {
+								screen: 'ActiveTrip',
+								params: { tripId: data.tripId },
+							});
+						}
+						break;
+					default:
+						break;
+				}
+			},
+		);
+
+		return () => sub.remove();
 	}, []);
 
 	// Sincronizar a preferência do utilizador com a Appearance API

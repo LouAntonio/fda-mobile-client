@@ -6,6 +6,7 @@ import {
 	RefreshControl,
 	StyleSheet,
 	TouchableOpacity,
+	Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -73,6 +74,10 @@ export default function PromotionsScreen() {
 
 	const activePromos = filteredPromos.filter((p) => !isExpired(p));
 	const expiredPromos = filteredPromos.filter((p) => isExpired(p));
+
+	const handleCopyCode = (code: string) => {
+		Alert.alert('Código do cupão', `Copie manualmente:\n\n${code}`);
+	};
 
 	if (isLoading) {
 		return (
@@ -268,6 +273,9 @@ export default function PromotionsScreen() {
 											},
 										]}
 										activeOpacity={0.6}
+										onPress={() =>
+											handleCopyCode(promo.code)
+										}
 									>
 										<Ionicons
 											name="copy-outline"
