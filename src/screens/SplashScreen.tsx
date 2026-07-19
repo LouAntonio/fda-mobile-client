@@ -22,8 +22,6 @@ export default function SplashScreen({
 
 	const { themeColors } = useThemeColors();
 	const hydrated = useAuthStore((s) => s.hydrated);
-	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-	const accessToken = useAuthStore((s) => s.accessToken);
 
 	useEffect(() => {
 		if (!hydrated) return;
@@ -49,7 +47,11 @@ export default function SplashScreen({
 				useNativeDriver: true,
 			}).start(() => {
 				const store = useAuthStore.getState();
-				if (store.hydrated && store.isAuthenticated && store.accessToken) {
+				if (
+					store.hydrated &&
+					store.isAuthenticated &&
+					store.accessToken
+				) {
 					(navigation as any).replace('Main');
 				} else {
 					(navigation as any).replace('Onboarding');

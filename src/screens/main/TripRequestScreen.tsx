@@ -404,7 +404,9 @@ export default function TripRequestScreen() {
 										backgroundColor: isDark
 											? '#2A2A2A'
 											: '#F9FAFB',
-										borderColor: isDark ? '#333' : '#E5E7EB',
+										borderColor: isDark
+											? '#333'
+											: '#E5E7EB',
 										color: themeColors.text,
 									}}
 									placeholder="Nome do recetor"
@@ -418,7 +420,9 @@ export default function TripRequestScreen() {
 										backgroundColor: isDark
 											? '#2A2A2A'
 											: '#F9FAFB',
-										borderColor: isDark ? '#333' : '#E5E7EB',
+										borderColor: isDark
+											? '#333'
+											: '#E5E7EB',
 										color: themeColors.text,
 									}}
 									placeholder="Telefone do recetor"
@@ -433,7 +437,9 @@ export default function TripRequestScreen() {
 										backgroundColor: isDark
 											? '#2A2A2A'
 											: '#F9FAFB',
-										borderColor: isDark ? '#333' : '#E5E7EB',
+										borderColor: isDark
+											? '#333'
+											: '#E5E7EB',
 										color: themeColors.text,
 									}}
 									placeholder="Tipo de encomenda (ex: documentos)"
@@ -447,7 +453,9 @@ export default function TripRequestScreen() {
 										backgroundColor: isDark
 											? '#2A2A2A'
 											: '#F9FAFB',
-										borderColor: isDark ? '#333' : '#E5E7EB',
+										borderColor: isDark
+											? '#333'
+											: '#E5E7EB',
 										color: themeColors.text,
 									}}
 									placeholder="Observações (opcional)"

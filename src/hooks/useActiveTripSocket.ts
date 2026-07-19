@@ -102,7 +102,19 @@ export function useActiveTripSocket({
 			console.warn('[Socket error]', data.message);
 		});
 
-		cleanupFns.current = [off1, off2, off3, off4, off5, off6, off7, off8, off9, off10, off11];
+		cleanupFns.current = [
+			off1,
+			off2,
+			off3,
+			off4,
+			off5,
+			off6,
+			off7,
+			off8,
+			off9,
+			off10,
+			off11,
+		];
 
 		return () => {
 			socketManager.leaveTrip(tripId);

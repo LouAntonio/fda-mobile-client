@@ -31,8 +31,8 @@ export default function App() {
 	useEffect(() => {
 		const sub = Notifications.addNotificationResponseReceivedListener(
 			(response) => {
-				const data = response.notification.request
-					.content.data as NotificationData;
+				const data = response.notification.request.content
+					.data as NotificationData;
 
 				if (!data.type || !navigationRef.isReady()) return;
 
