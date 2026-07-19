@@ -74,11 +74,35 @@ export function useActiveTripSocket({
 			);
 		});
 
-		const off7 = socketManager.on('error', (data) => {
+		const off7 = socketManager.on('trip:offer', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
+
+		const off8 = socketManager.on('trip:offer_accepted', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
+
+		const off9 = socketManager.on('trip:offer_expired', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
+
+		const off10 = socketManager.on('trip:offer_rejected', () => {
+			queryClient.invalidateQueries({
+				queryKey: tripKeys.detail(tripId),
+			});
+		});
+
+		const off11 = socketManager.on('error', (data) => {
 			console.warn('[Socket error]', data.message);
 		});
 
-		cleanupFns.current = [off1, off2, off3, off4, off5, off6, off7];
+		cleanupFns.current = [off1, off2, off3, off4, off5, off6, off7, off8, off9, off10, off11];
 
 		return () => {
 			socketManager.leaveTrip(tripId);

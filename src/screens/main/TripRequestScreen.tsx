@@ -49,6 +49,10 @@ export default function TripRequestScreen() {
 	const [appliedCoupon, setAppliedCoupon] = useState('');
 	const [pickupReference, setPickupReference] = useState('');
 	const [dropoffReference, setDropoffReference] = useState('');
+	const [receiverName, setReceiverName] = useState('');
+	const [receiverPhone, setReceiverPhone] = useState('');
+	const [packageType, setPackageType] = useState('');
+	const [deliveryNotes, setDeliveryNotes] = useState('');
 
 	const keyboardHeight = useKeyboardHeight();
 	const {
@@ -173,6 +177,15 @@ export default function TripRequestScreen() {
 				paymentMethod: 'CASH',
 				vehicleType: 'MOTO',
 				couponCode: couponCode || undefined,
+				deliveryDetails:
+					serviceType === 'DELIVERY'
+						? {
+								receiverName,
+								receiverPhone,
+								packageType,
+								notes: deliveryNotes || undefined,
+							}
+						: undefined,
 			},
 			{
 				onSuccess: (trip) => {
@@ -381,6 +394,69 @@ export default function TripRequestScreen() {
 								onChangeText={setDropoffReference}
 							/>
 						</View>
+
+						{/* Delivery Details */}
+						{serviceType === 'DELIVERY' && (
+							<View className="gap-2 mb-3">
+								<TextInput
+									className="px-4 py-3 rounded-2xl border text-base"
+									style={{
+										backgroundColor: isDark
+											? '#2A2A2A'
+											: '#F9FAFB',
+										borderColor: isDark ? '#333' : '#E5E7EB',
+										color: themeColors.text,
+									}}
+									placeholder="Nome do recetor"
+									placeholderTextColor="#9CA3AF"
+									value={receiverName}
+									onChangeText={setReceiverName}
+								/>
+								<TextInput
+									className="px-4 py-3 rounded-2xl border text-base"
+									style={{
+										backgroundColor: isDark
+											? '#2A2A2A'
+											: '#F9FAFB',
+										borderColor: isDark ? '#333' : '#E5E7EB',
+										color: themeColors.text,
+									}}
+									placeholder="Telefone do recetor"
+									placeholderTextColor="#9CA3AF"
+									keyboardType="phone-pad"
+									value={receiverPhone}
+									onChangeText={setReceiverPhone}
+								/>
+								<TextInput
+									className="px-4 py-3 rounded-2xl border text-base"
+									style={{
+										backgroundColor: isDark
+											? '#2A2A2A'
+											: '#F9FAFB',
+										borderColor: isDark ? '#333' : '#E5E7EB',
+										color: themeColors.text,
+									}}
+									placeholder="Tipo de encomenda (ex: documentos)"
+									placeholderTextColor="#9CA3AF"
+									value={packageType}
+									onChangeText={setPackageType}
+								/>
+								<TextInput
+									className="px-4 py-3 rounded-2xl border text-base"
+									style={{
+										backgroundColor: isDark
+											? '#2A2A2A'
+											: '#F9FAFB',
+										borderColor: isDark ? '#333' : '#E5E7EB',
+										color: themeColors.text,
+									}}
+									placeholder="Observações (opcional)"
+									placeholderTextColor="#9CA3AF"
+									value={deliveryNotes}
+									onChangeText={setDeliveryNotes}
+								/>
+							</View>
+						)}
 
 						{/* Coupon */}
 						<View className="flex-row items-center gap-2 mb-3">
