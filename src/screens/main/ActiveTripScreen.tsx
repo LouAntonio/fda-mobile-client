@@ -25,6 +25,7 @@ import { useActiveTripSocket } from '../../hooks/useActiveTripSocket';
 import type { DispatchStatus } from '../../hooks/useActiveTripSocket';
 import { useMapRoute } from '../../hooks/useMapRoute';
 import MapView from '../../components/MapView';
+import SkeletonBox from '../../components/skeletons/SkeletonBox';
 import type { MainStackParamList } from '../../types/navigation';
 
 function parseWktPoint(wkt: string): { lat: number; lng: number } | null {
@@ -174,50 +175,18 @@ export default function ActiveTripScreen() {
 				style={{ backgroundColor: themeColors.background }}
 			>
 				<View className="flex-1 px-5 pt-4">
-					<View
-						className="h-10 w-48 rounded-lg mb-6"
-						style={{
-							backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
-						}}
-					/>
-					<View
-						className="flex-1 rounded-2xl mb-6"
-						style={{
-							backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
-						}}
-					/>
+					<SkeletonBox width="48%" height={40} borderRadius={8} />
+					<View className="flex-1 mt-4 mb-6">
+						<SkeletonBox width="100%" height="100%" borderRadius={16} />
+					</View>
 					<View className="flex-row items-center mb-4">
-						<View
-							className="w-14 h-14 rounded-full mr-3"
-							style={{
-								backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
-							}}
-						/>
-						<View className="flex-1">
-							<View
-								className="h-4 w-32 rounded mb-2"
-								style={{
-									backgroundColor: isDark
-										? '#2A2A2A'
-										: '#E5E7EB',
-								}}
-							/>
-							<View
-								className="h-3 w-24 rounded"
-								style={{
-									backgroundColor: isDark
-										? '#2A2A2A'
-										: '#E5E7EB',
-								}}
-							/>
+						<SkeletonBox width={56} height={56} borderRadius={28} />
+						<View className="flex-1 ml-3 gap-2">
+							<SkeletonBox width="60%" height={16} borderRadius={4} />
+							<SkeletonBox width="40%" height={12} borderRadius={4} />
 						</View>
 					</View>
-					<View
-						className="h-24 rounded-2xl mb-4"
-						style={{
-							backgroundColor: isDark ? '#2A2A2A' : '#E5E7EB',
-						}}
-					/>
+					<SkeletonBox width="100%" height={96} borderRadius={16} />
 				</View>
 			</SafeAreaView>
 		);

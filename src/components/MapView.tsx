@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import MapView, {
 	Marker,
 	Polyline,
@@ -37,6 +37,8 @@ export default function MapViewWrapper({
 	markers = [],
 	routeCoords = [],
 }: MapViewWrapperProps) {
+	const [isMapLoaded, setIsMapLoaded] = useState(false);
+
 	const handlePress = (e: MapPressEvent) => {
 		if (onPress) {
 			onPress(
@@ -48,7 +50,15 @@ export default function MapViewWrapper({
 
 	return (
 		<View style={[styles.container, style]}>
+			{!isMapLoaded && (
+				<ActivityIndicator
+					size="large"
+					color="#FFD700"
+					style={StyleSheet.absoluteFill}
+				/>
+			)}
 			<MapView
+				onMapReady={() => setIsMapLoaded(true)}
 				style={StyleSheet.absoluteFillObject}
 				initialRegion={initialRegion}
 				onPress={handlePress}

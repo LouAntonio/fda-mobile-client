@@ -260,9 +260,13 @@ export default function HistoryScreen() {
 			<ScrollView
 				contentContainerClassName="px-5 pb-10"
 				showsVerticalScrollIndicator={false}
-				onMomentumScrollEnd={() => {
+				onMomentumScrollEnd={async () => {
 					if (hasNextPage && !isFetchingNextPage) {
-						fetchNextPage();
+						try {
+							await fetchNextPage();
+						} catch {
+							Alert.alert('Erro', 'Falha ao carregar mais viagens.');
+						}
 					}
 				}}
 				refreshControl={

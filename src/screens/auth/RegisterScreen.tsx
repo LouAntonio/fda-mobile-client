@@ -105,6 +105,10 @@ export default function RegisterScreen() {
 			Alert.alert('Erro', 'As senhas não coincidem.');
 			return;
 		}
+		if (password.length < 6) {
+			Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+			return;
+		}
 		mutation.mutate({
 			name: firstName,
 			surname: lastName,
