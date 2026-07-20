@@ -350,7 +350,7 @@ export default function TripDetailScreen() {
 					</Animated.View>
 				)}
 
-				{/* Price Breakdown */}
+				{/* Receipt / Invoice */}
 				<Animated.View
 					entering={FadeInDown.duration(400).delay(250)}
 					className="p-4 rounded-2xl mb-4 border"
@@ -359,9 +359,27 @@ export default function TripDetailScreen() {
 						borderColor: isDark ? '#333' : '#E5E7EB',
 					}}
 				>
-					<Text className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-						Detalhes do Preço
-					</Text>
+					<View className="flex-row items-center justify-between mb-3">
+						<Text className="text-xs font-bold uppercase tracking-wider text-gray-500">
+							Recibo / Factura
+						</Text>
+						<View className="px-2 py-0.5 rounded bg-primary/20">
+							<Text className="text-[9px] font-black text-primary uppercase tracking-wider">
+								#{trip.id.slice(0, 8).toUpperCase()}
+							</Text>
+						</View>
+					</View>
+					{trip.completedAt && (
+						<Text className="text-[10px] text-gray-400 mb-3">
+							{new Date(trip.completedAt).toLocaleDateString('pt-AO', {
+								day: '2-digit',
+								month: 'long',
+								year: 'numeric',
+								hour: '2-digit',
+								minute: '2-digit',
+							})}
+						</Text>
+					)}
 					<PriceRow
 						label="Subtotal"
 						value={Number(trip.subtotal).toLocaleString('pt-AO')}
