@@ -151,6 +151,7 @@ export interface EstimateTripPayload {
 	pickupCoords: Coords;
 	dropoffCoords: Coords;
 	vehicleType: 'MOTO' | 'CARRO';
+	couponCode?: string;
 }
 
 export interface ListTripsFilters {

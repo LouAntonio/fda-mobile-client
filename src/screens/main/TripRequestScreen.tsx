@@ -87,10 +87,11 @@ export default function TripRequestScreen() {
 					lng: selectedDropoff.longitude,
 				},
 				vehicleType: 'MOTO',
+				couponCode: couponCode || undefined,
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedDropoff]);
+	}, [selectedDropoff, couponCode]);
 
 	const handleSearchResult = (item: {
 		center: [number, number];
@@ -162,8 +163,11 @@ export default function TripRequestScreen() {
 			return;
 		}
 
+		const idempotencyKey = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+
 		requestMutation.mutate(
 			{
+				idempotencyKey,
 				serviceType,
 				pickupCoords: { lat: userLat, lng: userLng },
 				dropoffCoords: {
