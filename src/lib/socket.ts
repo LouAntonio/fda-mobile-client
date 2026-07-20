@@ -20,17 +20,11 @@ export function connectSocket(token: string): Socket {
 		reconnectionDelay: 2000,
 	});
 
-	socket.on('connect', () => {
-		console.log('[Socket] Conectado ao namespace /trips');
-	});
+	socket.on('connect', () => {});
 
-	socket.on('disconnect', (reason) => {
-		console.log('[Socket] Desconectado:', reason);
-	});
+	socket.on('disconnect', (_reason) => {});
 
-	socket.on('error', (err: { message: string }) => {
-		console.error('[Socket] Erro:', err.message);
-	});
+	socket.on('error', (_err: { message: string }) => {});
 
 	return socket;
 }

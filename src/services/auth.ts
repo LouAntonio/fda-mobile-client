@@ -70,8 +70,4 @@ export function loginWithGoogle(accessToken: string) {
 	return api.post<ApiResponse<LoginData>>('/auth/google', { accessToken });
 }
 
-type MeData = User;
 
-export function fetchMe() {
-	return api.get<ApiResponse<MeData>>('/auth/me');
-}
