@@ -13,6 +13,7 @@ import {
 	Keyboard,
 	TouchableWithoutFeedback,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Animated, {
@@ -35,6 +36,7 @@ import { fetchProfileStats, type ProfileStats } from '../../api/stats';
 import { useTrips } from '../../hooks/useTrips';
 import { logoutUser } from '../../services/auth';
 import { updateProfile, updateEmergencyContact } from '../../services/user';
+import { uploadToCloudinary } from '../../lib/upload';
 import {
 	sendPhoneVerification,
 	confirmPhoneVerification,
@@ -228,6 +230,34 @@ export default function ProfileScreen() {
 		updateMutation.mutate({ name: editName, surname: editSurname });
 	};
 
+	const handleChangePhoto = async () => {
+		const permission =
+			await ImagePicker.requestMediaLibraryPermissionsAsync();
+		if (!permission.granted) {
+			Alert.alert(
+				'Permissão necessária',
+				'Precisamos de acesso à galeria para alterar a foto.',
+			);
+			return;
+		}
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ['images'],
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 0.7,
+		});
+		if (result.canceled || !result.assets?.[0]?.uri) return;
+		try {
+			const imageUrl = await uploadToCloudinary(
+				result.assets[0].uri,
+				'FDA/profiles',
+			);
+			updateMutation.mutate({ image: imageUrl });
+		} catch {
+			Alert.alert('Erro', 'Não foi possível fazer upload da imagem.');
+		}
+	};
+
 	const isLoading =
 		profileQuery.isLoading || tripsLoading || statsQuery.isLoading;
 	const error = profileQuery.error;
@@ -347,6 +377,20 @@ export default function ProfileScreen() {
 										: undefined
 								}
 							/>
+							<TouchableOpacity
+								onPress={handleChangePhoto}
+								className="flex-row items-center justify-center gap-1.5 mt-2"
+								activeOpacity={0.7}
+							>
+								<Ionicons
+									name="camera-outline"
+									size={16}
+									color="#FFD700"
+								/>
+								<Text className="text-sm font-bold text-primary">
+									Alterar foto
+								</Text>
+							</TouchableOpacity>
 						</Animated.View>
 
 						{/* Stats — unified glass card */}

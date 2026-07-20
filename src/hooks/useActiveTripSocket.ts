@@ -10,6 +10,14 @@ interface UseActiveTripSocketOptions {
 	enabled?: boolean;
 }
 
+export type DispatchStatus =
+	| 'idle'
+	| 'searching'
+	| 'offering'
+	| 'expired'
+	| 'accepted'
+	| 'no_drivers';
+
 export function useActiveTripSocket({
 	tripId,
 	enabled = true,
@@ -21,6 +29,10 @@ export function useActiveTripSocket({
 		lat: number;
 		lng: number;
 	} | null>(null);
+	const [dispatchStatus, setDispatchStatus] = useState<DispatchStatus>('idle');
+	const [offeringDriverName, setOfferingDriverName] = useState<string | null>(
+		null,
+	);
 
 	const cleanupFns = useRef<(() => void)[]>([]);
 
@@ -68,31 +80,40 @@ export function useActiveTripSocket({
 		});
 
 		const off6 = socketManager.on('trip:no_drivers', (data) => {
+			setDispatchStatus('no_drivers');
 			Alert.alert(
 				'Sem motoristas',
 				data.message || 'Nenhum motorista disponível no momento.',
 			);
 		});
 
-		const off7 = socketManager.on('trip:offer', () => {
+		const off7 = socketManager.on('trip:offer', (data) => {
+			setDispatchStatus('offering');
+			setOfferingDriverName(data.driverName);
 			queryClient.invalidateQueries({
 				queryKey: tripKeys.detail(tripId),
 			});
 		});
 
 		const off8 = socketManager.on('trip:offer_accepted', () => {
+			setDispatchStatus('accepted');
+			setOfferingDriverName(null);
 			queryClient.invalidateQueries({
 				queryKey: tripKeys.detail(tripId),
 			});
 		});
 
 		const off9 = socketManager.on('trip:offer_expired', () => {
+			setDispatchStatus('expired');
+			setOfferingDriverName(null);
 			queryClient.invalidateQueries({
 				queryKey: tripKeys.detail(tripId),
 			});
 		});
 
 		const off10 = socketManager.on('trip:offer_rejected', () => {
+			setDispatchStatus('expired');
+			setOfferingDriverName(null);
 			queryClient.invalidateQueries({
 				queryKey: tripKeys.detail(tripId),
 			});
@@ -123,8 +144,10 @@ export function useActiveTripSocket({
 			}
 			cleanupFns.current = [];
 			setDriverLocation(null);
+			setDispatchStatus('idle');
+			setOfferingDriverName(null);
 		};
 	}, [tripId, enabled, accessToken, connect, queryClient]);
 
-	return { connect, disconnect, driverLocation };
+	return { connect, disconnect, driverLocation, dispatchStatus, offeringDriverName };
 }

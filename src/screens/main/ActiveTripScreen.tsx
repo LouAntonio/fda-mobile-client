@@ -22,6 +22,7 @@ import { useThemeColors } from '../../hooks/useThemeColors';
 import { useCurrentLocation } from '../../hooks/useCurrentLocation';
 import { useTrip, useCancelTrip } from '../../hooks/useTrips';
 import { useActiveTripSocket } from '../../hooks/useActiveTripSocket';
+import type { DispatchStatus } from '../../hooks/useActiveTripSocket';
 import { useMapRoute } from '../../hooks/useMapRoute';
 import MapView from '../../components/MapView';
 import type { MainStackParamList } from '../../types/navigation';
@@ -75,7 +76,8 @@ export default function ActiveTripScreen() {
 
 	const { data: trip, isLoading } = useTrip(tripId);
 	const cancelMutation = useCancelTrip();
-	const { driverLocation } = useActiveTripSocket({ tripId, enabled: true });
+	const { driverLocation, dispatchStatus, offeringDriverName } =
+		useActiveTripSocket({ tripId, enabled: true });
 	const { location: currentLocation } = useCurrentLocation();
 	const { route: mapRoute, fetchRoute } = useMapRoute();
 
@@ -279,7 +281,7 @@ export default function ActiveTripScreen() {
 					elevation: 8,
 				}}
 			>
-				<View className="flex-row items-center mb-4">
+				<View className="flex-row items-center mb-1">
 					<View
 						className="w-3 h-3 rounded-full mr-3"
 						style={{ backgroundColor: statusInfo.color }}
@@ -291,6 +293,20 @@ export default function ActiveTripScreen() {
 						{statusInfo.label}
 					</Text>
 				</View>
+
+				{trip?.status === 'REQUESTED' && dispatchStatus !== 'idle' && (
+					<View className="mb-4 pl-1">
+						<Text className="text-xs font-medium text-gray-500 dark:text-gray-400 italic">
+							{dispatchStatus === 'offering'
+								? `A oferecer viagem a ${offeringDriverName ?? 'um motorista'}...`
+								: dispatchStatus === 'expired'
+									? 'Motorista não respondeu, a procurar outro...'
+									: dispatchStatus === 'no_drivers'
+										? 'Nenhum motorista disponível'
+										: 'A procurar motoristas perto de si...'}
+						</Text>
+					</View>
+				)}
 
 				{trip && (
 					<View className="mb-4 pl-1">
