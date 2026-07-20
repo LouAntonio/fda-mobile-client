@@ -25,7 +25,7 @@ import { useActiveTripSocket } from '../../hooks/useActiveTripSocket';
 import type { DispatchStatus } from '../../hooks/useActiveTripSocket';
 import { useMapRoute } from '../../hooks/useMapRoute';
 import MapView from '../../components/MapView';
-import SkeletonBox from '../../components/skeletons/SkeletonBox';
+import { SkeletonBox } from '../../components/skeletons/SkeletonBox';
 import type { MainStackParamList } from '../../types/navigation';
 
 function parseWktPoint(wkt: string): { lat: number; lng: number } | null {
