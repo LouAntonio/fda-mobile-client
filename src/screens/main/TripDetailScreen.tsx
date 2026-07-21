@@ -94,19 +94,22 @@ export default function TripDetailScreen() {
 		},
 	});
 
+	const pickupWkt = trip?.actualPickupCoords ?? trip?.pickupCoords;
+	const dropoffWkt = trip?.actualDropoffCoords ?? trip?.dropoffCoords;
+
 	useEffect(() => {
-		if (!trip?.pickupCoords || !trip?.dropoffCoords) return;
-		const pickup = parseWktPoint(trip.pickupCoords);
-		const dropoff = parseWktPoint(trip.dropoffCoords);
+		if (!pickupWkt || !dropoffWkt) return;
+		const pickup = parseWktPoint(pickupWkt);
+		const dropoff = parseWktPoint(dropoffWkt);
 		if (pickup && dropoff) {
 			fetchRoute([pickup.lng, pickup.lat], [dropoff.lng, dropoff.lat]);
 		}
-	}, [trip?.pickupCoords, trip?.dropoffCoords, fetchRoute]);
+	}, [pickupWkt, dropoffWkt, fetchRoute]);
 
 	const markers = useMemo(() => {
-		if (!trip?.pickupCoords || !trip?.dropoffCoords) return [];
-		const pickup = parseWktPoint(trip.pickupCoords);
-		const dropoff = parseWktPoint(trip.dropoffCoords);
+		if (!pickupWkt || !dropoffWkt) return [];
+		const pickup = parseWktPoint(pickupWkt);
+		const dropoff = parseWktPoint(dropoffWkt);
 		if (!pickup || !dropoff) return [];
 		return [
 			{

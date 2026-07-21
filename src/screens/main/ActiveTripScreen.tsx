@@ -82,14 +82,17 @@ export default function ActiveTripScreen() {
 	const { location: currentLocation } = useCurrentLocation();
 	const { route: mapRoute, fetchRoute } = useMapRoute();
 
+	const pUpWkt = trip?.actualPickupCoords ?? trip?.pickupCoords;
+	const pDownWkt = trip?.actualDropoffCoords ?? trip?.dropoffCoords;
+
 	useEffect(() => {
-		if (!trip?.pickupCoords || !trip?.dropoffCoords) return;
-		const pickup = parseWktPoint(trip.pickupCoords);
-		const dropoff = parseWktPoint(trip.dropoffCoords);
+		if (!pUpWkt || !pDownWkt) return;
+		const pickup = parseWktPoint(pUpWkt);
+		const dropoff = parseWktPoint(pDownWkt);
 		if (pickup && dropoff) {
 			fetchRoute([pickup.lng, pickup.lat], [dropoff.lng, dropoff.lat]);
 		}
-	}, [trip?.pickupCoords, trip?.dropoffCoords, fetchRoute]);
+	}, [pUpWkt, pDownWkt, fetchRoute]);
 
 	const statusInfo = trip
 		? (STATUS_LABELS[trip.status] ?? STATUS_LABELS.REQUESTED)
