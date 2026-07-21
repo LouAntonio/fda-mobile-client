@@ -29,7 +29,8 @@ export function useActiveTripSocket({
 		lat: number;
 		lng: number;
 	} | null>(null);
-	const [dispatchStatus, setDispatchStatus] = useState<DispatchStatus>('idle');
+	const [dispatchStatus, setDispatchStatus] =
+		useState<DispatchStatus>('idle');
 	const [offeringDriverName, setOfferingDriverName] = useState<string | null>(
 		null,
 	);
@@ -149,5 +150,11 @@ export function useActiveTripSocket({
 		};
 	}, [tripId, enabled, accessToken, connect, queryClient]);
 
-	return { connect, disconnect, driverLocation, dispatchStatus, offeringDriverName };
+	return {
+		connect,
+		disconnect,
+		driverLocation,
+		dispatchStatus,
+		offeringDriverName,
+	};
 }

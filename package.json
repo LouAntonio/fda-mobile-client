@@ -61,7 +61,8 @@
 		"install": {
 			"exclude": [
 				"expo",
-				"expo-updates"
+				"expo-updates",
+				"expo-image-picker"
 			]
 		}
 	}

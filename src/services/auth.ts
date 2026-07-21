@@ -69,5 +69,3 @@ export function logoutUser(refreshToken: string) {
 export function loginWithGoogle(accessToken: string) {
 	return api.post<ApiResponse<LoginData>>('/auth/google', { accessToken });
 }
-
-

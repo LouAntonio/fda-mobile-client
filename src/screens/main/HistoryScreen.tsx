@@ -266,7 +266,10 @@ export default function HistoryScreen() {
 						try {
 							await fetchNextPage();
 						} catch {
-							Alert.alert('Erro', 'Falha ao carregar mais viagens.');
+							Alert.alert(
+								'Erro',
+								'Falha ao carregar mais viagens.',
+							);
 						}
 					}
 				}}

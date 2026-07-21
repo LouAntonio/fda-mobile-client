@@ -22,7 +22,7 @@ import { useThemeColors } from '../../hooks/useThemeColors';
 import { useCurrentLocation } from '../../hooks/useCurrentLocation';
 import { useTrip, useCancelTrip } from '../../hooks/useTrips';
 import { useActiveTripSocket } from '../../hooks/useActiveTripSocket';
-import type { DispatchStatus } from '../../hooks/useActiveTripSocket';
+
 import { useMapRoute } from '../../hooks/useMapRoute';
 import MapView from '../../components/MapView';
 import { SkeletonBox } from '../../components/skeletons/SkeletonBox';
@@ -177,13 +177,25 @@ export default function ActiveTripScreen() {
 				<View className="flex-1 px-5 pt-4">
 					<SkeletonBox width="48%" height={40} borderRadius={8} />
 					<View className="flex-1 mt-4 mb-6">
-						<SkeletonBox width="100%" height="100%" borderRadius={16} />
+						<SkeletonBox
+							width="100%"
+							height="100%"
+							borderRadius={16}
+						/>
 					</View>
 					<View className="flex-row items-center mb-4">
 						<SkeletonBox width={56} height={56} borderRadius={28} />
 						<View className="flex-1 ml-3 gap-2">
-							<SkeletonBox width="60%" height={16} borderRadius={4} />
-							<SkeletonBox width="40%" height={12} borderRadius={4} />
+							<SkeletonBox
+								width="60%"
+								height={16}
+								borderRadius={4}
+							/>
+							<SkeletonBox
+								width="40%"
+								height={12}
+								borderRadius={4}
+							/>
 						</View>
 					</View>
 					<SkeletonBox width="100%" height={96} borderRadius={16} />

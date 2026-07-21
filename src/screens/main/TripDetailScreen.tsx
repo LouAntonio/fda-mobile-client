@@ -371,13 +371,16 @@ export default function TripDetailScreen() {
 					</View>
 					{trip.completedAt && (
 						<Text className="text-[10px] text-gray-400 mb-3">
-							{new Date(trip.completedAt).toLocaleDateString('pt-AO', {
-								day: '2-digit',
-								month: 'long',
-								year: 'numeric',
-								hour: '2-digit',
-								minute: '2-digit',
-							})}
+							{new Date(trip.completedAt).toLocaleDateString(
+								'pt-AO',
+								{
+									day: '2-digit',
+									month: 'long',
+									year: 'numeric',
+									hour: '2-digit',
+									minute: '2-digit',
+								},
+							)}
 						</Text>
 					)}
 					<PriceRow
