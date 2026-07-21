@@ -41,7 +41,17 @@ export default function TripRequestScreen() {
 		latitude: number;
 		longitude: number;
 		name: string;
-	} | null>(null);
+	} | null>(() => {
+		const { dropoffLat, dropoffLng, dropoffAddress } = route.params;
+		if (dropoffLat != null && dropoffLng != null) {
+			return {
+				latitude: dropoffLat,
+				longitude: dropoffLng,
+				name: dropoffAddress ?? 'Destino',
+			};
+		}
+		return null;
+	});
 	const [couponCode, setCouponCode] = useState('');
 	const [couponValid, setCouponValid] = useState<boolean | null>(null);
 	const [couponDiscount, setCouponDiscount] = useState<number | null>(null);
@@ -61,7 +71,7 @@ export default function TripRequestScreen() {
 		results,
 		isSearching,
 		clearResults,
-	} = useMapSearch();
+	} = useMapSearch(route.params.dropoffAddress ?? '');
 	const { route: mapRoute, fetchRoute } = useMapRoute();
 	const estimateMutation = useEstimateTrip();
 	const requestMutation = useRequestTrip();

@@ -49,16 +49,16 @@ export default function HomeScreen() {
 		longitude: addr.lng,
 	}));
 
-	const handleRecentDestination = (
-		longitude: number,
+	const handleAddressPress = (
 		latitude: number,
+		longitude: number,
 		name: string,
 	) => {
 		navigation.navigate('TripRequest', {
 			serviceType: 'RIDE',
-			pickupLat: latitude,
-			pickupLng: longitude,
-			pickupAddress: name,
+			dropoffLat: latitude,
+			dropoffLng: longitude,
+			dropoffAddress: name,
 		});
 	};
 
@@ -253,7 +253,7 @@ export default function HomeScreen() {
 								{ color: themeColors.text },
 							]}
 						>
-							Locais recentes
+							Endereços
 						</Text>
 					</View>
 
@@ -263,9 +263,9 @@ export default function HomeScreen() {
 							style={styles.recentItem}
 							activeOpacity={0.6}
 							onPress={() =>
-								handleRecentDestination(
-									item.longitude,
+								handleAddressPress(
 									item.latitude,
+									item.longitude,
 									item.address,
 								)
 							}

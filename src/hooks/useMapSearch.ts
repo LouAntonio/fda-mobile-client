@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { geocodeForward } from '../services/map';
 import type { MapboxFeature } from '../types/api';
 
-export function useMapSearch() {
-	const [query, setQuery] = useState('');
+export function useMapSearch(initialQuery = '') {
+	const [query, setQuery] = useState(initialQuery);
 	const [results, setResults] = useState<MapboxFeature[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

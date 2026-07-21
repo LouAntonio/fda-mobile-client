@@ -23,6 +23,9 @@ export type MainStackParamList = {
 		pickupLat?: number;
 		pickupLng?: number;
 		pickupAddress?: string;
+		dropoffLat?: number;
+		dropoffLng?: number;
+		dropoffAddress?: string;
 	};
 	ActiveTrip: { tripId: string };
 	TripDetail: { tripId: string };
