@@ -125,7 +125,7 @@ export default function TripDetailScreen() {
 				title: 'Destino',
 			},
 		];
-	}, [trip?.pickupCoords, trip?.dropoffCoords]);
+	}, [pickupWkt, dropoffWkt]);
 
 	const routeCoords = useMemo(
 		() =>
