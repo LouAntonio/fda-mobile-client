@@ -50,9 +50,9 @@ export default function HomeScreen() {
 	}));
 
 	const handleAddressPress = (
-		latitude: number,
-		longitude: number,
 		name: string,
+		longitude: number,
+		latitude: number,
 	) => {
 		navigation.navigate('TripRequest', {
 			serviceType: 'RIDE',
@@ -264,9 +264,9 @@ export default function HomeScreen() {
 							activeOpacity={0.6}
 							onPress={() =>
 								handleAddressPress(
-									item.latitude,
-									item.longitude,
 									item.address,
+									item.longitude,
+									item.latitude,
 								)
 							}
 						>
