@@ -69,7 +69,10 @@ export default function PromotionsScreen() {
 
 	const filteredPromos = promotions.filter((p) => {
 		if (activeFilter === 'all') return true;
-		return p.discountType === 'PERCENTAGE' ? activeFilter === 'ride' : true;
+		if (p.serviceType === null) return true;
+		return activeFilter === 'ride'
+			? p.serviceType === 'RIDE'
+			: p.serviceType === 'DELIVERY';
 	});
 
 	const activePromos = filteredPromos.filter((p) => !isExpired(p));

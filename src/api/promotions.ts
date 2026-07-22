@@ -8,6 +8,7 @@ export interface Promotion {
 	discountValue: number;
 	maxDiscount: number | null;
 	minTripAmount: number | null;
+	serviceType: 'RIDE' | 'DELIVERY' | null;
 	startsAt: string | null;
 	expiresAt: string | null;
 	isActive: boolean;

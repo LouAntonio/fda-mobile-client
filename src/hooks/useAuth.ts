@@ -6,7 +6,6 @@ import {
 	registerUser,
 	forgotPassword,
 	resetPassword,
-	loginWithGoogle,
 	logoutUser,
 } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
@@ -80,35 +79,6 @@ export function useResetPassword() {
 			);
 		},
 	});
-}
-
-export function useGoogleLogin() {
-	const setAuth = useAuthStore((state) => state.setAuth);
-
-	return {
-		login: async (idToken: string) => {
-			try {
-				const res = await loginWithGoogle(idToken);
-				const authData = res.data as unknown as AuthTokens;
-				if (authData) {
-					setAuth(
-						authData.user,
-						authData.accessToken,
-						authData.refreshToken,
-					);
-					return authData;
-				}
-			} catch (err) {
-				const axiosErr = err as AxiosError<{ msg?: string }>;
-				Alert.alert(
-					'Erro',
-					axiosErr.response?.data?.msg ||
-						'Erro ao autenticar com Google.',
-				);
-			}
-			return null;
-		},
-	};
 }
 
 export function useLogout() {
