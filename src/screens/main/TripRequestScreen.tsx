@@ -135,7 +135,7 @@ export default function TripRequestScreen() {
 			});
 			if (
 				result.valid &&
-			result.discountApplied &&
+				result.discountApplied &&
 				result.discountApplied > 0
 			) {
 				setCouponDiscount(result.discountApplied);
