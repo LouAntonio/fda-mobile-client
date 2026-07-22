@@ -65,4 +65,3 @@ export function refreshTokens(refreshToken: string) {
 export function logoutUser(refreshToken: string) {
 	return api.post<ApiResponse<never>>('/auth/logout', { refreshToken });
 }
-
