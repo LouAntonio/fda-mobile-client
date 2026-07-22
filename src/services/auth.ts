@@ -66,6 +66,3 @@ export function logoutUser(refreshToken: string) {
 	return api.post<ApiResponse<never>>('/auth/logout', { refreshToken });
 }
 
-export function loginWithGoogle(accessToken: string) {
-	return api.post<ApiResponse<LoginData>>('/auth/google', { accessToken });
-}
