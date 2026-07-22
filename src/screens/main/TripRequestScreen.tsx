@@ -135,11 +135,10 @@ export default function TripRequestScreen() {
 			});
 			if (
 				result.valid &&
-				result.discountAmount &&
-				result.discountAmount > 0
+			result.discountApplied &&
+				result.discountApplied > 0
 			) {
-				setCouponValid(true);
-				setCouponDiscount(result.discountAmount);
+				setCouponDiscount(result.discountApplied);
 				setAppliedCoupon(couponCode.trim());
 			} else {
 				setCouponValid(false);

@@ -8,7 +8,7 @@ export type UserRole =
 	| 'FINANCE'
 	| 'FLEET_MANAGER';
 
-export type UserStatus = 'ACTIVE' | 'BANNED' | 'DELETED';
+export type UserStatus = 'ACTIVE' | 'BANNED';
 
 export type VehicleType = 'MOTO' | 'CARRO';
 
@@ -64,7 +64,6 @@ export interface UserProfile {
 	role: UserRole;
 	status: UserStatus;
 	hasPassword: boolean;
-	hasMulticaixa?: boolean;
 	accounts?: { providerId: string }[];
 	emergencyContactName?: string | null;
 	emergencyContactPhone?: string | null;

@@ -1,6 +1,6 @@
 import { api } from '../lib/api';
 
-export interface ContactPayload {
+export interface ContactMessagePayload {
 	name: string;
 	email?: string;
 	phone?: string;
@@ -8,7 +8,7 @@ export interface ContactPayload {
 }
 
 export async function sendContactMessage(
-	payload: ContactPayload,
+	payload: ContactMessagePayload,
 ): Promise<void> {
 	await api.post('/support/contact', payload);
 }

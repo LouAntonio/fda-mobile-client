@@ -7,11 +7,7 @@ export interface ProfileStats {
 	totalSpent: number;
 }
 
-export interface StatsResponse {
-	stats: ProfileStats;
-}
-
-export async function fetchProfileStats(): Promise<StatsResponse> {
+export async function fetchProfileStats(): Promise<{ stats: ProfileStats }> {
 	const { data } = await api.get('/users/me/stats');
-	return data as StatsResponse;
+	return data as { stats: ProfileStats };
 }

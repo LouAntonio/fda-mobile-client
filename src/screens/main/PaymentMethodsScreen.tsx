@@ -9,25 +9,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../../hooks/useThemeColors';
-import { useAuthStore } from '../../store/authStore';
-import { useQuery } from '@tanstack/react-query';
-import { fetchProfile } from '../../api/profile';
-
 export default function PaymentMethodsScreen() {
 	const navigation = useNavigation();
 	const { themeColors, isDark } = useThemeColors();
-	const userFromStore = useAuthStore((state) => state.user);
 
-	const { data: profileData } = useQuery({
-		queryKey: ['profile'],
-		queryFn: fetchProfile,
-		enabled: !userFromStore?.hasMulticaixa,
-	});
-
-	const hasMulticaixa =
-		userFromStore?.hasMulticaixa ??
-		profileData?.user?.hasMulticaixa ??
-		false;
+	const hasMulticaixa = false;
 
 	const methods = useMemo(() => {
 		const list: Array<{

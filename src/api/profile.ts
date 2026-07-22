@@ -1,11 +1,7 @@
 import { api } from '../lib/api';
 import type { User } from '../store/authStore';
 
-export interface ProfileResponse {
-	user: User;
-}
-
-export async function fetchProfile(): Promise<ProfileResponse> {
+export async function fetchProfile(): Promise<{ user: User }> {
 	const { data } = await api.get('/auth/me');
-	return { user: data as unknown as User };
+	return { user: data.data ?? data };
 }

@@ -48,7 +48,7 @@ export function useTrip(id: string | undefined) {
 			) {
 				return false;
 			}
-			return 10000;
+			return 30000;
 		},
 	});
 }

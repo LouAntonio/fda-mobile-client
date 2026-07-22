@@ -65,7 +65,7 @@ export default function PromotionsScreen() {
 		[isDark],
 	);
 
-	const promotions = data?.promotions ?? [];
+	const promotions = data ?? [];
 
 	const filteredPromos = promotions.filter((p) => {
 		if (activeFilter === 'all') return true;

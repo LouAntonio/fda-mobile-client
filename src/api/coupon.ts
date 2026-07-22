@@ -5,18 +5,21 @@ export interface ValidateCouponPayload {
 	tripAmount: number;
 }
 
-export interface CouponValidationResult {
+export interface ValidateCouponResult {
 	valid: boolean;
-	discountAmount?: number;
-	discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT';
-	discountValue?: number;
-	couponId?: string;
+	discountApplied: number;
 	reason?: string;
+	coupon: {
+		id: string;
+		code: string;
+		discountType: 'PERCENTAGE' | 'FIXED';
+		discountValue: number;
+	} | null;
 }
 
 export async function validateCoupon(
 	payload: ValidateCouponPayload,
-): Promise<CouponValidationResult> {
+): Promise<ValidateCouponResult> {
 	const { data } = await api.post('/coupons/validate', payload);
-	return data as CouponValidationResult;
+	return data as ValidateCouponResult;
 }
